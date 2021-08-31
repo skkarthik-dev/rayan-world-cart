@@ -282,7 +282,7 @@
         },
         {
             "name": "botble/menu",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/menu",
@@ -315,7 +315,7 @@
         },
         {
             "name": "botble/page",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/page",
@@ -345,7 +345,7 @@
         },
         {
             "name": "botble/platform",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/core",
@@ -431,7 +431,7 @@
         },
         {
             "name": "botble/plugin-management",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/plugin-management",
@@ -460,7 +460,7 @@
         },
         {
             "name": "botble/revision",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/revision",
@@ -489,7 +489,7 @@
         },
         {
             "name": "botble/seo-helper",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/seo-helper",
@@ -522,7 +522,7 @@
         },
         {
             "name": "botble/shortcode",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/shortcode",
@@ -551,7 +551,7 @@
         },
         {
             "name": "botble/sitemap",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/sitemap",
@@ -580,7 +580,7 @@
         },
         {
             "name": "botble/slug",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/slug",
@@ -612,7 +612,7 @@
         },
         {
             "name": "botble/theme",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/theme",
@@ -653,7 +653,7 @@
         },
         {
             "name": "botble/widget",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "./platform/packages/widget",
@@ -2657,16 +2657,16 @@
         },
         {
             "name": "laravel/cashier",
-            "version": "v13.4.5",
+            "version": "v13.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/cashier-stripe.git",
-                "reference": "becf98716bc83e5c7d5e771266652fbff0c2354f"
+                "reference": "78b7d6a2376df1b1f9c4688e26cc0ecc1a7c9483"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/cashier-stripe/zipball/becf98716bc83e5c7d5e771266652fbff0c2354f",
-                "reference": "becf98716bc83e5c7d5e771266652fbff0c2354f",
+                "url": "https://api.github.com/repos/laravel/cashier-stripe/zipball/78b7d6a2376df1b1f9c4688e26cc0ecc1a7c9483",
+                "reference": "78b7d6a2376df1b1f9c4688e26cc0ecc1a7c9483",
                 "shasum": ""
             },
             "require": {
@@ -2733,20 +2733,20 @@
                 "issues": "https://github.com/laravel/cashier/issues",
                 "source": "https://github.com/laravel/cashier"
             },
-            "time": "2021-08-24T15:51:55+00:00"
+            "time": "2021-08-31T14:44:03+00:00"
         },
         {
             "name": "laravel/framework",
-            "version": "v8.57.0",
+            "version": "v8.58.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "6de01746680d7bc7e239b20ec5cdfe70ce586235"
+                "reference": "1b819bf99d87bd543a4d4895e5b3350f61ea7a23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/6de01746680d7bc7e239b20ec5cdfe70ce586235",
-                "reference": "6de01746680d7bc7e239b20ec5cdfe70ce586235",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/1b819bf99d87bd543a4d4895e5b3350f61ea7a23",
+                "reference": "1b819bf99d87bd543a4d4895e5b3350f61ea7a23",
                 "shasum": ""
             },
             "require": {
@@ -2901,7 +2901,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2021-08-27T13:34:11+00:00"
+            "time": "2021-08-31T13:55:57+00:00"
         },
         {
             "name": "laravel/socialite",
