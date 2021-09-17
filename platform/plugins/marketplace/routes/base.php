@@ -20,19 +20,24 @@ Route::group(['namespace' => 'Botble\Marketplace\Http\Controllers', 'middleware'
                     ->except([
                         'create',
                         'store',
+                        'destroy'
                     ]);
-
-                Route::delete('items/destroy', [
-                    'as'         => 'deletes',
-                    'uses'       => 'WithdrawalController@deletes',
-                    'permission' => 'marketplace.withdrawal.destroy',
-                ]);
             });
 
             Route::match(['get', 'post'], '/settings', [
                 'as'   => 'settings',
                 'uses' => 'MarketplaceController@settings',
             ]);
+
+            Route::group(['prefix' => 'unverified-vendors', 'as' => 'unverified-vendors.'], function () {
+                Route::resource('', 'UnverifiedVendorController')
+                    ->parameters(['' => 'unverifiedVendor'])
+                    ->except([
+                        'create',
+                        'store',
+                        'destroy'
+                    ]);
+            });
         });
 
     });

@@ -306,6 +306,8 @@ class EcommerceProduct {
                             _self.initElements();
                             _self.handleEvents();
                         });
+
+                        $current.closest('.modal-content').find('.variation-form-wrapper').remove();
                     }
                     $current.removeClass('button-loading');
                 },
@@ -328,6 +330,14 @@ class EcommerceProduct {
             event.preventDefault();
             createOrUpdateVariation($(event.currentTarget));
         });
+
+        $('#add-new-product-variation-modal').on('hidden.bs.modal', function (e) {
+            $(this).find('.modal-content .variation-form-wrapper').remove();
+        });
+
+        $('#edit-product-variation-modal').on('hidden.bs.modal', function (e) {
+            $(this).find('.modal-content .variation-form-wrapper').remove();
+        })
 
         _self.$body.on('click', '#generate-all-versions-button', event => {
             event.preventDefault();

@@ -35,7 +35,9 @@ if (!function_exists('get_admin_email')) {
     {
         $email = setting('admin_email', []);
 
-        return collect(is_array($email) ? $email : [$email]);
+        $email = is_array($email) ? $email : [$email];
+
+        return collect(array_filter($email));
     }
 }
 

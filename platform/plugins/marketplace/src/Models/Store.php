@@ -7,6 +7,7 @@ use Botble\Base\Models\BaseModel;
 use Botble\Base\Supports\Avatar;
 use Botble\Base\Traits\EnumCastable;
 use Botble\Ecommerce\Models\Customer;
+use Botble\Ecommerce\Models\Discount;
 use Botble\Ecommerce\Models\Order;
 use Botble\Ecommerce\Models\Product;
 use Exception;
@@ -88,5 +89,16 @@ class Store extends BaseModel
         } catch (Exception $exception) {
             return RvMedia::getDefaultImage();
         }
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        self::deleting(function (Store $store) {
+            Product::where('store_id', $store->id)->delete();
+            Discount::where('store_id', $store->id)->delete();
+            Order::where('store_id', $store->id)->update(['store_id' => null]);
+        });
     }
 }

@@ -59,7 +59,7 @@ class CookieConsentServiceProvider extends ServiceProvider
                 'fields'     => [
                     [
                         'id'         => 'cookie_consent_enable',
-                        'type'       => 'select',
+                        'type'       => 'customSelect',
                         'label'      => trans('plugins/cookie-consent::cookie-consent.theme_options.enable'),
                         'attributes' => [
                             'name'    => 'cookie_consent_enable',

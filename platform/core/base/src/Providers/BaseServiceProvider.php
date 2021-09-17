@@ -171,7 +171,10 @@ class BaseServiceProvider extends ServiceProvider
 
         $config = $this->app->make('config');
 
-        $config->set(['purifier.settings.default' => $config->get('core.base.general.purifier')]);
+        $config->set(['purifier.settings' => array_merge(
+            $config->get('purifier.settings'),
+            $config->get('core.base.general.purifier')
+        )]);
     }
 
     /**

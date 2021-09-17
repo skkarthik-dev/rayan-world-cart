@@ -175,6 +175,14 @@ class PaymentController extends Controller
                 break;
 
             case PaymentMethodEnum::PAYPAL:
+                $supportedCurrencies = $this->payPalService->supportedCurrencyCodes();
+
+                if (!in_array($data['currency'], $supportedCurrencies)) {
+                    $data['error'] = true;
+                    $data['message'] = __(":name doesn't support :currency. List of currencies supported by :name: :currencies.", ['name' => 'PayPal', 'currency' => get_application_currency()->title, 'currencies' => implode(', ', $supportedCurrencies)]);
+                    break;
+                }
+
                 $checkoutUrl = $this->payPalService->execute($request);
                 if ($checkoutUrl) {
                     return redirect($checkoutUrl);

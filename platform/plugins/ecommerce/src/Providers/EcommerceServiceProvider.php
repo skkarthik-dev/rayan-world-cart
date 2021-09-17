@@ -4,6 +4,7 @@ namespace Botble\Ecommerce\Providers;
 
 use Botble\Base\Supports\Helper;
 use Botble\Base\Traits\LoadAndPublishDataTrait;
+use Botble\Ecommerce\Commands\SendAbandonedCartsEmailCommand;
 use Botble\Ecommerce\Facades\CartFacade;
 use Botble\Ecommerce\Facades\EcommerceHelperFacade;
 use Botble\Ecommerce\Facades\OrderHelperFacade;
@@ -131,6 +132,7 @@ use Botble\LanguageAdvanced\Supports\LanguageAdvancedManager;
 use Cart;
 use EcommerceHelper;
 use EmailHandler;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Routing\Router;
@@ -187,7 +189,6 @@ class EcommerceServiceProvider extends ServiceProvider
                 new ProductTagRepository(new ProductTag)
             );
         });
-
 
         $this->app->bind(BrandInterface::class, function () {
             return new BrandCacheDecorator(
@@ -453,6 +454,8 @@ class EcommerceServiceProvider extends ServiceProvider
             }, 1234, 2);
         }
 
+        EmailHandler::addTemplateSettings(ECOMMERCE_MODULE_SCREEN_NAME, config('plugins.ecommerce.email'));
+
         $this->app->register(HookServiceProvider::class);
 
         Event::listen(RouteMatched::class, function () {
@@ -643,8 +646,6 @@ class EcommerceServiceProvider extends ServiceProvider
                 'url'         => route('ecommerce.bulk-import.index'),
                 'permissions' => ['ecommerce.bulk-import.index'],
             ]);
-
-            EmailHandler::addTemplateSettings(ECOMMERCE_MODULE_SCREEN_NAME, config('plugins.ecommerce.email'));
         });
 
         $this->app->booted(function () {
@@ -654,9 +655,12 @@ class EcommerceServiceProvider extends ServiceProvider
                 ProductCategory::class,
                 ProductTag::class,
             ]);
+
+            $this->app->make(Schedule::class)->command(SendAbandonedCartsEmailCommand::class)->weekly('23:30');
         });
 
         $this->app->register(EventServiceProvider::class);
+        $this->app->register(CommandServiceProvider::class);
 
         Event::listen(['cart.removed', 'cart.stored', 'cart.restored', 'cart.updated'], function ($cart) {
             $coupon = session('applied_coupon_code');

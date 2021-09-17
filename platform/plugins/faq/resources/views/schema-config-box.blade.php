@@ -1,4 +1,4 @@
-<a href="#" class="add-faq-schema-items @if ($hasValue) hidden @endif">{{ __('Add item') }}</a>
+<a href="#" class="add-faq-schema-items @if ($hasValue) hidden @endif">{{ trans('plugins/faq::faq.add_item') }}</a>
 
 <div class="faq-schema-items @if (!$hasValue) hidden @endif">
     {!! Form::repeater('faq_schema_config', $value, [

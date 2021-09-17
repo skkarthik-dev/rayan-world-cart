@@ -119,8 +119,8 @@
                                 <p><small>({{ __('Shipping fees not included') }})</small></p>
                             </div>
                         </div>
-                        <a class="ps-btn d-inline-block float-left" href="{{ route('public.products') }}"><i class="icon-arrow-left"></i> {{ __('Back to Shop') }}</a>
-                        <a class="ps-btn ps-btn d-inline-block float-right" href="{{ route('public.checkout.information', OrderHelper::getOrderSessionToken()) }}">{{ __('Proceed to checkout') }} <i class="icon-arrow-right"></i></a>
+                        <a class="ps-btn btn-cart-button-action" href="{{ route('public.products') }}"><i class="icon-arrow-left"></i> {{ __('Back to Shop') }}</a>
+                        <a class="ps-btn ps-btn btn-cart-button-action" href="{{ route('public.checkout.information', OrderHelper::getOrderSessionToken()) }}">{{ __('Proceed to checkout') }} <i class="icon-arrow-right"></i></a>
                     </div>
                 </div>
             </div>

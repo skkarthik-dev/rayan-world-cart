@@ -3,8 +3,10 @@
 namespace Botble\Ecommerce\Supports;
 
 use Botble\Base\Supports\Helper;
+use Botble\Ecommerce\Repositories\Interfaces\ReviewInterface;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class EcommerceHelper
 {
@@ -22,6 +24,74 @@ class EcommerceHelper
     public function isReviewEnabled(): bool
     {
         return get_ecommerce_setting('review_enabled', '1') == '1';
+    }
+
+    /**
+     * @param bool $isConvertToKB
+     * @return int
+     */
+    public function reviewMaxFileSize($isConvertToKB = false): int
+    {
+        $size = (int) get_ecommerce_setting('review_max_file_size', 2);
+
+        if (!$size) {
+            $size = 2;
+        } elseif ($size > 1024) {
+            $size = 1024;
+        }
+
+        return $isConvertToKB ? $size * 1024 : $size;
+    }
+
+    /**
+     * @return int
+     */
+    public function reviewMaxFileNumber(): int
+    {
+        $number = (int) get_ecommerce_setting('review_max_file_number', 6);
+
+        if (!$number) {
+            $number = 1;
+        } elseif ($number > 100) {
+            $number = 100;
+        }
+
+        return $number;
+    }
+
+    /**
+     * @param int $productId
+     * @param int $reviewsCount
+     * @return Collection
+     */
+    public function getReviewsGroupedByProductId($productId, $reviewsCount = 0): Collection
+    {
+        if ($reviewsCount) {
+            $reviews = app(ReviewInterface::class)->getGroupedByProductId($productId);
+        } else {
+            $reviews = collect([]);
+        }
+
+        $results = collect([]);
+        for ($i = 5; $i >= 1; $i--) {
+            if ($reviewsCount) {
+                $review = $reviews->firstWhere('star', $i);
+                $starCount = $review ? $review->star_count : 0;
+                if ($starCount > 0) {
+                    $starCount = $starCount / $reviewsCount * 100;
+                }
+            } else {
+                $starCount = 0;
+            }
+
+            $results[] = [
+                'star'    => $i,
+                'count'   => $starCount,
+                'percent' => ((int) ($starCount * 100)) / 100,
+            ];
+        }
+
+        return $results;
     }
 
     /**
@@ -99,7 +169,7 @@ class EcommerceHelper
      */
     public function getSortParams(): array
     {
-        return [
+        $sort = [
             'default_sorting' => __('Default'),
             'date_asc'        => __('Oldest'),
             'date_desc'       => __('Newest'),
@@ -107,9 +177,16 @@ class EcommerceHelper
             'price_desc'      => __('Price: high to low'),
             'name_asc'        => __('Name: A-Z'),
             'name_desc'       => __('Name : Z-A'),
-            'rating_asc'      => __('Rating: low to high'),
-            'rating_desc'     => __('Rating: high to low'),
         ];
+
+        if ($this->isReviewEnabled()) {
+            $sort += [
+                'rating_asc'      => __('Rating: low to high'),
+                'rating_desc'     => __('Rating: high to low'),
+            ];
+        }
+
+        return $sort;
     }
 
     /**
@@ -145,23 +222,23 @@ class EcommerceHelper
      */
     public function getDateRangeInReport(Request $request)
     {
-        $startDate = now()->startOfMonth();
+        $startDate = now()->subDays(29);
         $endDate = now();
 
-        if ($request->get('date_from')) {
+        if ($request->input('date_from')) {
             try {
-                $startDate = now()->createFromFormat('Y-m-d', $request->get('date_from'));
+                $startDate = now()->createFromFormat('Y-m-d', $request->input('date_from'));
             } catch (Exception $ex) {
             }
 
             if (!$startDate) {
-                $startDate = now()->startOfMonth();
+                $startDate = now()->subDays(29);
             }
         }
 
-        if ($request->get('date_to')) {
+        if ($request->input('date_to')) {
             try {
-                $endDate = now()->createFromFormat('Y-m-d', $request->get('date_to'));
+                $endDate = now()->createFromFormat('Y-m-d', $request->input('date_to'));
             } catch (Exception $ex) {
             }
 
@@ -175,10 +252,12 @@ class EcommerceHelper
         }
 
         if ($startDate->gt($endDate)) {
-            $startDate = now()->startOfMonth();
+            $startDate = now()->subDays(29);
         }
 
-        return [$startDate, $endDate];
+        $predefinedRange = $request->input('predefined_range', trans('plugins/ecommerce::reports.ranges.last_30_days'));
+
+        return [$startDate, $endDate, $predefinedRange];
     }
 
     /**

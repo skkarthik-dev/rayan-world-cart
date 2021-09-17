@@ -61,7 +61,9 @@
                                     @endif
 
                                     <div class="ps-list--dot">
+                                        {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
                                         {!! clean($product->description) !!}
+                                        {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
                                     </div>
                                 </div>
                                 @php $flashSale = $product->latestFlashSales()->first(); @endphp
@@ -217,55 +219,24 @@
                                                             </div>
                                                         @endif
                                                     </div>
-                                                    <div class="ps-block__star"><span>{{ __('5 Star') }}</span>
-                                                        @php
-                                                            $stars = $product->reviews->where('star', 5)->count();
-                                                            if ($stars > 0) {
-                                                                $stars = $stars / $product->reviews_count * 100;
-                                                            }
-                                                        @endphp
-                                                        <div class="ps-progress" data-value="{{ $stars }}"><span></span></div><span>{{ ((int) ($stars * 100)) / 100 }}%</span>
-                                                    </div>
-                                                    <div class="ps-block__star"><span>{{ __('4 Star') }}</span>
-                                                        @php
-                                                            $stars = $product->reviews->where('star', 4)->count();
-                                                            if ($stars > 0) {
-                                                                $stars = $stars / $product->reviews_count * 100;
-                                                            }
-                                                        @endphp
-                                                        <div class="ps-progress" data-value="{{ $stars }}"><span></span></div><span>{{ ((int) ($stars * 100)) / 100 }}%</span>
-                                                    </div>
-                                                    <div class="ps-block__star"><span>{{ __('3 Star') }}</span>
-                                                        @php
-                                                            $stars = $product->reviews->where('star', 3)->count();
-                                                            if ($stars > 0) {
-                                                                $stars = $stars / $product->reviews_count * 100;
-                                                            }
-                                                        @endphp
-                                                        <div class="ps-progress" data-value="{{ $stars }}"><span></span></div><span>{{ ((int) ($stars * 100)) / 100 }}%</span>
-                                                    </div>
-                                                    <div class="ps-block__star"><span>{{ __('2 Star') }}</span>
-                                                        @php
-                                                            $stars = $product->reviews->where('star', 2)->count();
-                                                            if ($stars > 0) {
-                                                                $stars = $stars / $product->reviews_count * 100;
-                                                            }
-                                                        @endphp
-                                                        <div class="ps-progress" data-value="{{ $stars }}"><span></span></div><span>{{ ((int) ($stars * 100)) / 100 }}%</span>
-                                                    </div>
-                                                    <div class="ps-block__star"><span>{{ __('1 Star') }}</span>
-                                                        @php
-                                                            $stars = $product->reviews->where('star', 1)->count();
-                                                            if ($stars > 0) {
-                                                                $stars = $stars / $product->reviews_count * 100;
-                                                            }
-                                                        @endphp
-                                                        <div class="ps-progress" data-value="{{ $stars }}"><span></span></div><span>{{ ((int) ($stars * 100)) / 100 }}%</span>
-                                                    </div>
+                                                    @foreach (EcommerceHelper::getReviewsGroupedByProductId($product->id, $product->reviews_count) as $item)
+                                                        <div class="ps-block__star @if (!$item['count']) disabled @endif" data-star="{{ $item['star'] }}">
+                                                            <span>{{ __(':star Star', ['star' => $item['star']]) }}</span>
+                                                            <div class="ps-progress" data-value="{{ $item['count'] }}">
+                                                                <span></span>
+                                                            </div>
+                                                            <span>{{ $item['percent'] }}%</span>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
                                             </div>
                                             <div class="col-lg-7">
-                                                {!! Form::open(['route' => 'public.reviews.create', 'method' => 'post', 'class' => 'ps-form--review form-review-product']) !!}
+                                                {!! Form::open([
+                                                        'route'  => 'public.reviews.create',
+                                                        'method' => 'POST',
+                                                        'class'  => 'ps-form--review form-review-product',
+                                                        'files'  => true,
+                                                    ]) !!}
                                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                                                     <h4>{{ __('Submit Your Review') }}</h4>
                                                     @if (!auth('customer')->check())
@@ -285,6 +256,49 @@
                                                     <div class="form-group">
                                                         <textarea class="form-control" name="comment" id="txt-comment" rows="6" placeholder="{{ __('Write your review') }}" @if (!auth('customer')->check()) disabled @endif></textarea>
                                                     </div>
+                                                    <div class="form-group">
+                                                        <script type="text/x-custom-template" id="review-image-template">
+                                                            <span class="image-viewer__item" data-id="__id__">
+                                                                <img src="{{ RvMedia::getDefaultImage() }}" alt="Preview" class="img-responsive d-block">
+                                                                <span class="image-viewer__icon-remove">
+                                                                    <i class="icon-cross-circle"></i>
+                                                                </span>
+                                                            </span>
+                                                        </script>
+                                                        <div class="image-upload__viewer d-flex">
+                                                            <div class="image-viewer__list position-relative">
+                                                                <div class="image-upload__uploader-container">
+                                                                    <div class="d-table">
+                                                                        <div class="image-upload__uploader">
+                                                                            <i class="fa fa-image image-upload__icon"></i>
+                                                                            <div class="image-upload__text">{{ __('Upload photos') }}</div>
+                                                                            <input type="file"
+                                                                                name="images[]"
+                                                                                data-max-files="{{ EcommerceHelper::reviewMaxFileNumber() }}"
+                                                                                class="image-upload__file-input"
+                                                                                accept="image/png,image/jpeg,image/jpg"
+                                                                                multiple="multiple"
+                                                                                data-max-size="{{ EcommerceHelper::reviewMaxFileSize(true) }}"
+                                                                                data-max-size-message="{{ trans('validation.max.file', ['attribute' => '__attribute__', 'max' => '__max__']) }}">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="loading">
+                                                                    <div class="half-circle-spinner">
+                                                                        <div class="circle circle-1"></div>
+                                                                        <div class="circle circle-2"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="help-block">
+                                                            {{ __('You can upload up to :total photos, each photo maximum size is :max kilobytes', [
+                                                                    'total' => EcommerceHelper::reviewMaxFileNumber(),
+                                                                    'max'   => EcommerceHelper::reviewMaxFileSize(true),
+                                                                ]) }}
+                                                        </div>
+
+                                                    </div>
 
                                                     <div class="form-group submit">
                                                         <button class="ps-btn @if (!auth('customer')->check()) btn-disabled @endif" type="submit" @if (!auth('customer')->check()) disabled @endif>{{ __('Submit Review') }}</button>
@@ -293,18 +307,40 @@
                                             </div>
                                         </div>
 
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="block--product-reviews">
-                                                    <div class="block__header">
-                                                        <h2>{{ $product->reviews_count }} {{ __('reviews for ":product"', ['product' => $product->name]) }}</h2>
-                                                    </div>
-                                                    <div class="block__content" id="app">
-                                                        <product-reviews-component url="{{ route('public.ajax.product-reviews', $product->id) }}"></product-reviews-component>
+                                        @if ($product->reviews_count)
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="block--product-reviews">
+                                                        <div class="block__header d-md-flex align-items-center justify-content-between">
+                                                            <div class="pb-4 pb-md-0">
+                                                                <h2>{{ __(':total review(s) for ":product"', [
+                                                                        'total'   => $product->reviews_count,
+                                                                        'product' => $product->name,
+                                                                    ]) }}
+                                                                </h2>
+                                                            </div>
+                                                            <div class="ps-review__filter-by-star d-flex align-items-center justify-content-end">
+                                                                <div class="px-2 d-flex align-items-center">
+                                                                    <i class="icon-funnel"></i>
+                                                                    <span>{{ __('Filter') }}:</span>
+                                                                </div>
+                                                                <div class="ps-review__filter-select">
+                                                                    <select class="ps-select">
+                                                                        <option value="0">{{ __('All Star') }}</option>
+                                                                        @for ($i = 1; $i <= 5; $i++)
+                                                                            <option value="{{ $i }}">{{ __(':star Star', ['star' => $i]) }}</option>
+                                                                        @endfor
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="block__content" id="app">
+                                                            <product-reviews-component url="{{ route('public.ajax.product-reviews', $product->id) }}"></product-reviews-component>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 @endif
 
@@ -315,7 +351,9 @@
                                             {!! clean($product->store->content) !!}
                                         </div>
 
-                                        <a href="{{ $product->store->url }}" class="more-products">{{ __('More Products from :store',  ['store' => $product->store->name]) }}</a>
+                                        <a href="{{ $product->store->url }}" class="more-products">
+                                            {{ __('More Products from :store',  ['store' => $product->store->name]) }}
+                                        </a>
                                     </div>
                                 @endif
                             </div>

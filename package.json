@@ -10,7 +10,7 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "axios": "^0.21.1",
+        "axios": "^0.21.4",
         "bootstrap": "^4.6.0",
         "cross-env": "^7.0.3",
         "epic-spinners": "^1.1.0",
@@ -18,7 +18,7 @@
         "laravel-mix": "^6.0.11",
         "lodash": "^4.17.20",
         "popper.js": "^1.16.1",
-        "sass": "^1.37.5",
+        "sass": "^1.39.0",
         "sass-loader": "^12.1.0",
         "vue": "^2.6.12",
         "vue-loader": "^15.9.5"

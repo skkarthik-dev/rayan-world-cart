@@ -24,5 +24,8 @@ return [
         'select_store'        => 'Select a store...',
         'is_vendor'           => 'Is vendor?',
     ],
-    'store'  => 'Store',
+    'store'       => 'Store',
+    'store_name'  => 'Store name',
+    'store_phone' => 'Store phone',
+    'store_link'  => 'Store link',
 ];

@@ -866,7 +866,9 @@ class Botble {
                 success: res => {
                     if (!res.error) {
                         res.data.map(x => {
-                            $('.menu-item-count.' + x.key).text(x.value).show().removeClass('hidden');
+                            if (x.value > 0) {
+                                $('.menu-item-count.' + x.key).text(x.value).show().removeClass('hidden');
+                            }
                         });
                     }
                 },

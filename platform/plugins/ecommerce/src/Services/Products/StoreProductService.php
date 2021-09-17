@@ -54,11 +54,6 @@ class StoreProductService
                 'wide',
                 'height',
                 'weight',
-                'barcode',
-                'length_unit',
-                'wide_unit',
-                'height_unit',
-                'weight_unit',
             ]);
         }
 

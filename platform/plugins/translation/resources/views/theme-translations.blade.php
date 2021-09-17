@@ -43,7 +43,7 @@
                     </div>
                     <br>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-info button-save-theme-translations">{{ trans('core/base::forms.save') }}</button>
+                        <button type="submit" class="btn btn-info">{{ trans('core/base::forms.save') }}</button>
                     </div>
                 {!! Form::close() !!}
             @else

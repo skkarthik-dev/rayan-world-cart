@@ -2,6 +2,7 @@
 
 namespace Botble\Ecommerce\Forms;
 
+use BaseHelper;
 use Botble\Base\Forms\FormAbstract;
 use Botble\Ecommerce\Http\Requests\CustomerCreateRequest;
 use Botble\Ecommerce\Models\Customer;
@@ -39,12 +40,25 @@ class CustomerForm extends FormAbstract
                     'data-counter' => 60,
                 ],
             ])
+            ->add('phone', 'text', [
+                'label'      => trans('plugins/ecommerce::customer.phone'),
+                'label_attr' => ['class' => 'control-label'],
+                'attr'       => [
+                    'placeholder'  => trans('plugins/ecommerce::customer.phone_placeholder'),
+                    'data-counter' => 20,
+                ],
+            ])
+            ->add('dob', 'date', [
+                'label'      => trans('plugins/ecommerce::customer.dob'),
+                'label_attr' => ['class' => 'control-label'],
+                'attr'       => [
+                    'data-date-format' => config('core.base.general.date_format.js.date'),
+                ],
+                'default_value' => BaseHelper::formatDate(now()),
+            ])
             ->add('is_change_password', 'checkbox', [
                 'label'      => trans('plugins/ecommerce::customer.change_password'),
                 'label_attr' => ['class' => 'control-label'],
-                'attr'       => [
-                    'class' => 'hrv-checkbox',
-                ],
                 'value'      => 1,
             ])
             ->add('password', 'password', [
@@ -66,6 +80,11 @@ class CustomerForm extends FormAbstract
                 'wrapper'    => [
                     'class' => $this->formHelper->getConfig('defaults.wrapper_class') . ($this->getModel()->id ? ' hidden' : null),
                 ],
-            ]);
+            ])
+            ->add('avatar', 'mediaImage', [
+                'label'      => trans('core/base::forms.image'),
+                'label_attr' => ['class' => 'control-label'],
+            ])
+            ->setBreakFieldPoint('avatar');
     }
 }

@@ -12,7 +12,10 @@ use Botble\Ecommerce\Repositories\Interfaces\CustomerInterface;
 use Botble\Ecommerce\Repositories\Interfaces\OrderInterface;
 use Botble\Ecommerce\Repositories\Interfaces\ProductInterface;
 use Botble\Ecommerce\Repositories\Interfaces\ReviewInterface;
+use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Supports\PaymentHelper;
+use Botble\Theme\Supports\ThemeSupport;
+use File;
 use Form;
 use Html;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -22,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Menu;
 use OrderHelper;
+use Theme;
 use Throwable;
 
 class HookServiceProvider extends ServiceProvider
@@ -164,6 +168,39 @@ class HookServiceProvider extends ServiceProvider
 
                     return OrderHelper::processOrder($orderIds, $data['charge_id']);
                 }, 123);
+            }
+
+            if (defined('PAYMENT_METHOD_SETTINGS_CONTENT')) {
+                add_filter(PAYMENT_METHOD_SETTINGS_CONTENT, function ($html, $paymentMethod) {
+
+                    if ($paymentMethod == PaymentMethodEnum::COD) {
+                        return $html . view('plugins/ecommerce::settings.additional-cod-settings')->render();
+                    }
+                    return $html;
+                }, 123, 2);
+            }
+
+            if (config('packages.theme.general.enable_custom_js')) {
+                add_filter('ecommerce_checkout_header', function ($html) {
+                    $customCSSFile = public_path(Theme::path() . '/css/style.integration.css');
+                    if (File::exists($customCSSFile)) {
+                        $html .= Html::style(Theme::asset()->url('css/style.integration.css?v=' . filectime($customCSSFile)));
+                    }
+
+                    return $html . ThemeSupport::getCustomJS('header');
+                }, 15);
+
+                if (setting('custom_body_js')) {
+                    add_filter('ecommerce_checkout_body', function ($html) {
+                        return $html . ThemeSupport::getCustomJS('body');
+                    }, 15);
+                }
+
+                if (setting('custom_footer_js')) {
+                    add_filter('ecommerce_checkout_footer', function ($html) {
+                        return $html . ThemeSupport::getCustomJS('footer');
+                    }, 15);
+                }
             }
         });
     }

@@ -235,7 +235,7 @@ class ProductSeeder extends BaseSeeder
                 $faker->numberBetween(1, 37),
                 $faker->numberBetween(1, 37),
                 $faker->numberBetween(1, 37),
-                $faker->numberBetween(15, 17),
+                $faker->numberBetween(15, 37),
             ]);
 
             $product->tags()->sync([

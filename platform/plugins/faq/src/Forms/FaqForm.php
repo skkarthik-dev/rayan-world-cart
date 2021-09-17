@@ -26,7 +26,7 @@ class FaqForm extends FormAbstract
                 'attr'       => [
                     'class' => 'form-control select-full',
                 ],
-                'choices'    => ['' => __('Select a category')] + app(FaqCategoryInterface::class)->pluck('name', 'id'),
+                'choices'    => ['' => trans('plugins/faq::faq.select_category')] + app(FaqCategoryInterface::class)->pluck('name', 'id'),
             ])
             ->add('question', 'text', [
                 'label'      => trans('plugins/faq::faq.question'),

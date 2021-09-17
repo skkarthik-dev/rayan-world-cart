@@ -1,5 +1,5 @@
 <template>
-    <div class="row">
+    <div class="row justify-content-center">
         <div v-if="isLoading" class="col-12">
             <div class="half-circle-spinner">
                 <div class="circle circle-1"></div>

@@ -84,6 +84,8 @@
                                    name="payment_{{ MOLLIE_PAYMENT_METHOD_NAME }}_api_key" id="{{ MOLLIE_PAYMENT_METHOD_NAME }}_api_key"
                                    value="{{ get_payment_setting('api_key', MOLLIE_PAYMENT_METHOD_NAME) }}">
                         </div>
+
+                        {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, MOLLIE_PAYMENT_METHOD_NAME) !!}
                     </div>
                 </div>
             </div>

@@ -159,7 +159,7 @@ class ContactTable extends TableAbstract
             ],
             'status'    => [
                 'title'    => trans('core/base::tables.status'),
-                'type'     => 'select',
+                'type'     => 'customSelect',
                 'choices'  => ContactStatusEnum::labels(),
                 'validate' => 'required|' . Rule::in(ContactStatusEnum::values()),
             ],

@@ -64,8 +64,8 @@ class StoreAttributeSetService
             event(new UpdatedContentEvent(PRODUCT_ATTRIBUTE_SETS_MODULE_SCREEN_NAME, $request, $productAttributeSet));
         }
 
-        $attributes = json_decode($request->get('attributes', '[]'), true) ?: [];
-        $deletedAttributes = json_decode($request->get('deleted_attributes', '[]'), true) ?: [];
+        $attributes = json_decode($request->input('attributes', '[]'), true) ?: [];
+        $deletedAttributes = json_decode($request->input('deleted_attributes', '[]'), true) ?: [];
 
         $this->deleteAttributes($productAttributeSet->id, $deletedAttributes);
         $this->storeAttributes($productAttributeSet->id, $attributes);

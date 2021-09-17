@@ -25,6 +25,7 @@ class Review extends BaseModel
         'star',
         'comment',
         'status',
+        'images',
     ];
 
     /**
@@ -32,6 +33,7 @@ class Review extends BaseModel
      */
     protected $casts = [
         'status' => BaseStatusEnum::class,
+        'images' => 'array',
     ];
 
     /**

@@ -29,7 +29,7 @@
     <body @if (Theme::get('pageId')) id="{{ Theme::get('pageId') }}" @endif @if (BaseHelper::siteLanguageDirection() == 'rtl') dir="rtl" @endif>
         <div id="alert-container"></div>
         @php
-            $categories = !is_plugin_active('ecommerce') ? [] : get_product_categories(['status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED], ['slugable', 'children', 'children.slugable', 'children.children', 'children.children.slugable', 'icon'], [], true);
+            $categories = !is_plugin_active('ecommerce') ? [] : get_product_categories(['status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED], ['slugable', 'children', 'children.slugable', 'children.children', 'children.children.slugable', 'metadata'], [], true);
         @endphp
 
         {!! Theme::get('topHeader') !!}
@@ -121,15 +121,7 @@
                         @if (is_plugin_active('ecommerce'))
                             <ul class="navigation__extra">
                                 @if (is_plugin_active('marketplace'))
-                                    @if (!auth('customer')->check())
-                                        <li><a href="{{ route('customer.login') }}">{{ __('Sell On Martfury') }}</a></li>
-                                    @else
-                                        @if (auth('customer')->user()->is_vendor)
-                                            <li><a href="{{ route('marketplace.vendor.dashboard') }}">{{ __('Sell On Martfury') }}</a></li>
-                                        @else
-                                            <li><a href="{{ route('marketplace.vendor.become-vendor') }}">{{ __('Sell On Martfury') }}</a></li>
-                                        @endif
-                                    @endif
+                                    <li><a href="{{ !auth('customer')->check() ? route('customer.login') : (auth('customer')->user()->is_vendor ? route('marketplace.vendor.dashboard') : route('marketplace.vendor.become-vendor')) }}">{{ __('Sell On Martfury') }}</a></li>
                                 @endif
                                 <li><a href="{{ route('public.orders.tracking') }}">{{ __('Track your order') }}</a></li>
                                 @php $currencies = get_all_currencies(); @endphp

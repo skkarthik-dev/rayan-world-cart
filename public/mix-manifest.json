@@ -245,6 +245,7 @@
     "/platform/plugins/translation/public/css/translation.css": "/platform/plugins/translation/public/css/translation.css",
     "/platform/themes/martfury/public/css/rtl.css": "/platform/themes/martfury/public/css/rtl.css",
     "/platform/themes/martfury/public/css/style.css": "/platform/themes/martfury/public/css/style.css",
+    "/platform/themes/martfury/public/css/style.integration.css": "/platform/themes/martfury/public/css/style.integration.css",
     "/platform/themes/martfury/public/js/app.js": "/platform/themes/martfury/public/js/app.js",
     "/platform/themes/martfury/public/js/backend.js": "/platform/themes/martfury/public/js/backend.js",
     "/platform/themes/martfury/public/js/icons-field.js": "/platform/themes/martfury/public/js/icons-field.js",

@@ -2,7 +2,7 @@
 
     @if (EcommerceHelper::isEnabledGuestCheckout() && !auth('customer')->check())
         <div class="form-group">
-            <p>{{ __('You have an account already?') }} <a href="{{ route('customer.login') }}">{{ __('Login') }}</a></p>
+            <p>{{ __('Already have an account?') }} <a href="{{ route('customer.login') }}">{{ __('Login') }}</a></p>
         </div>
     @endif
 

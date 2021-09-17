@@ -202,6 +202,12 @@ class OrderHelper
         if (!File::isDirectory($folderPath)) {
             File::makeDirectory($folderPath);
         }
+
+        $fontsPath = storage_path('fonts');
+        if (!File::isDirectory($fontsPath)) {
+            File::makeDirectory($fontsPath);
+        }
+
         $invoice = $folderPath . '/invoice-order-' . get_order_code($order->id) . '.pdf';
 
         if (File::exists($invoice)) {

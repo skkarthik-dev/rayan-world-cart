@@ -10,7 +10,7 @@ class DiscountCacheDecorator extends CacheAbstractDecorator implements DiscountI
     /**
      * {@inheritDoc}
      */
-    public function getAvailablePromotions()
+    public function getAvailablePromotions(array $with = [], bool $forProductSingle = false)
     {
         return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
     }

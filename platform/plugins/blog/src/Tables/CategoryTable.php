@@ -149,7 +149,7 @@ class CategoryTable extends TableAbstract
             ],
             'status'     => [
                 'title'    => trans('core/base::tables.status'),
-                'type'     => 'select',
+                'type'     => 'customSelect',
                 'choices'  => BaseStatusEnum::labels(),
                 'validate' => 'required|in:' . implode(',', BaseStatusEnum::values()),
             ],

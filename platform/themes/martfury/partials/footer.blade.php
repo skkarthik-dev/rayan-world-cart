@@ -107,6 +107,7 @@
     <script>
         window.trans = {
             "View All": "{{ __('View All') }}",
+            "No reviews!": "{{ __('No reviews!') }}",
         }
         window.siteUrl = "{{ url('') }}";
     </script>

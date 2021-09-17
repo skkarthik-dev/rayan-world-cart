@@ -4,11 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>{{ trans('plugins/ecommerce::order.invoice_for_order') }} {{ get_order_code($order->id) }}</title>
-    <link rel="stylesheet" href="{{ asset('vendor/core/plugins/ecommerce/css/invoice.css') }}?v=1.1.1">
+
+    <link href="https://fonts.googleapis.com/css?family={{ urlencode(get_ecommerce_setting('invoice_font_family', 'Roboto')) }}:400,500,600,700,900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('vendor/core/plugins/ecommerce/css/invoice.css') }}?v=1.1.2">
+
+    <style>
+        body {
+            font-size: 15px;
+            font-family: '{{ get_ecommerce_setting('invoice_font_family', 'Roboto') }}', Arial, sans-serif !important;
+        }
+    </style>
 </head>
 <body @if (BaseHelper::siteLanguageDirection() == 'rtl') dir="rtl" @endif>
 
-<span class="stamp @if ($order->payment->status == \Botble\Payment\Enums\PaymentStatusEnum::COMPLETED) is-completed @else is-failed @endif">{{ $order->payment->status->label() }}</span>
+@if (get_ecommerce_setting('enable_invoice_stamp', 1) == 1)
+    <span class="stamp @if ($order->status == \Botble\Ecommerce\Enums\OrderStatusEnum::CANCELED) is-failed @elseif ($order->payment->status == \Botble\Payment\Enums\PaymentStatusEnum::COMPLETED) is-completed @else is-failed @endif">
+        @if ($order->status == \Botble\Ecommerce\Enums\OrderStatusEnum::CANCELED)
+            {{ $order->status->label() }}
+        @else
+            {{ $order->payment->status->label() }}
+        @endif
+    </span>
+@endif
 
 @php
     $logo = theme_option('logo_in_invoices') ?: theme_option('logo');

@@ -8,17 +8,21 @@ use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Ecommerce\Repositories\Interfaces\CustomerInterface;
 use Botble\Ecommerce\Repositories\Interfaces\OrderInterface;
 use Botble\Ecommerce\Repositories\Interfaces\ProductInterface;
-use EcommerceHelper;
+use Botble\Marketplace\Enums\WithdrawalStatusEnum;
 use Botble\Marketplace\Http\Requests\BecomeVendorRequest;
 use Botble\Marketplace\Models\Store;
 use Botble\Marketplace\Repositories\Interfaces\RevenueInterface;
 use Botble\Marketplace\Repositories\Interfaces\StoreInterface;
 use Botble\Marketplace\Repositories\Interfaces\VendorInfoInterface;
+use Botble\Marketplace\Repositories\Interfaces\WithdrawalInterface;
 use Botble\Media\Chunks\Exceptions\UploadMissingFileException;
 use Botble\Media\Chunks\Handler\DropZoneUploadHandler;
 use Botble\Media\Chunks\Receiver\FileReceiver;
 use Botble\Slug\Models\Slug;
+use EcommerceHelper;
+use EmailHandler;
 use Exception;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Foundation\Application;
@@ -74,6 +78,11 @@ class DashboardController
     protected $productRepository;
 
     /**
+     * @var WithdrawalInterface
+     */
+    protected $withdrawalRepository;
+
+    /**
      * DashboardController constructor.
      * @param Repository $config
      * @param CustomerInterface $customerRepository
@@ -81,6 +90,7 @@ class DashboardController
      * @param VendorInfoInterface $vendorInfoRepository
      * @param RevenueInterface $revenueRepository
      * @param ProductInterface $productRepository
+     * @param WithdrawalInterface $withdrawalRepository
      * @param OrderInterface $orderRepository
      */
     public function __construct(
@@ -90,6 +100,7 @@ class DashboardController
         VendorInfoInterface $vendorInfoRepository,
         RevenueInterface $revenueRepository,
         ProductInterface $productRepository,
+        WithdrawalInterface $withdrawalRepository,
         OrderInterface $orderRepository
     ) {
         $this->storeRepository = $storeRepository;
@@ -98,6 +109,7 @@ class DashboardController
         $this->orderRepository = $orderRepository;
         $this->revenueRepository = $revenueRepository;
         $this->productRepository = $productRepository;
+        $this->withdrawalRepository = $withdrawalRepository;
 
         Assets::setConfig($config->get('plugins.marketplace.assets', []));
 
@@ -113,9 +125,9 @@ class DashboardController
     }
 
     /**
-     * @return Application|Factory|View
+     * @return BaseHttpResponse|Application|Factory|View
      */
-    public function index(Request $request, BaseHttpResponse $response, OrderInterface $order)
+    public function index(Request $request, BaseHttpResponse $response)
     {
         page_title()->setTitle(__('Dashboard'));
 
@@ -131,44 +143,55 @@ class DashboardController
             ])
             ->addScripts(['moment']);
 
-        [$startDate, $endDate] = EcommerceHelper::getDateRangeInReport($request);
+        [$startDate, $endDate, $predefinedRange] = EcommerceHelper::getDateRangeInReport($request);
 
         $user = auth('customer')->user();
         $store = $user->store;
-        $data = compact('startDate', 'endDate');
+        $data = compact('startDate', 'endDate', 'predefinedRange');
 
         $revenue = $this->revenueRepository
             ->getModel()
             ->select([
                 DB::raw('SUM(mp_customer_revenues.sub_amount) as sub_amount'),
-                DB::raw('COALESCE(SUM(mp_customer_revenues.amount), 0) - COALESCE(SUM(mp_customer_withdrawals.amount), 0) as amount'),
-                DB::raw('SUM(mp_customer_withdrawals.amount) as withdrawal'),
-                DB::raw('COALESCE(SUM(mp_customer_withdrawals.fee), 0) + COALESCE(SUM(mp_customer_revenues.fee), 0) as fee'),
+                DB::raw('SUM(mp_customer_revenues.amount) as amount'),
+                DB::raw('SUM(mp_customer_revenues.fee) as fee'),
             ])
-            ->join('mp_customer_withdrawals', 'mp_customer_withdrawals.customer_id', 'mp_customer_revenues.customer_id')
             ->where('mp_customer_revenues.customer_id', $user->id)
             ->where(function ($query) use ($startDate, $endDate) {
-                $query->whereDate('mp_customer_withdrawals.created_at', '>=', $startDate)
-                ->whereDate('mp_customer_withdrawals.created_at', '<=', $endDate);
-            })
-            ->orWhere(function ($query) use ($startDate, $endDate) {
                 $query->whereDate('mp_customer_revenues.created_at', '>=', $startDate)
-                ->whereDate('mp_customer_revenues.created_at', '<=', $endDate);
+                    ->whereDate('mp_customer_revenues.created_at', '<=', $endDate);
             })
             ->groupBy('mp_customer_revenues.customer_id')
             ->first();
 
-        if (!$revenue) {
-            $revenue = collect([
-                'amount'     => 0,
-                'fee'        => 0,
-                'sub_amount' => 0,
-                'withdrawal' => 0,
-            ]);
-        }
+        $withdrawal = $this->withdrawalRepository
+            ->getModel()
+            ->select([
+                DB::raw('SUM(mp_customer_withdrawals.amount) as amount'),
+                DB::raw('SUM(mp_customer_withdrawals.fee)'),
+            ])
+            ->where('mp_customer_withdrawals.customer_id', $user->id)
+            ->whereIn('mp_customer_withdrawals.status', [
+                WithdrawalStatusEnum::COMPLETED,
+                WithdrawalStatusEnum::PENDING,
+                WithdrawalStatusEnum::PROCESSING,
+            ])
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query->whereDate('mp_customer_withdrawals.created_at', '>=', $startDate)
+                ->whereDate('mp_customer_withdrawals.created_at', '<=', $endDate);
+            })
+            ->groupBy('mp_customer_withdrawals.customer_id')
+            ->first();
 
-        $data['revenue'] = $revenue;
- 
+        $revenues = collect([
+            'amount'     => $revenue ? $revenue->amount : 0,
+            'fee'        => ($revenue ? $revenue->fee : 0) + ($withdrawal ? $withdrawal->fee : 0),
+            'sub_amount' => $revenue ? $revenue->sub_amount : 0,
+            'withdrawal' => $withdrawal ? $withdrawal->amount : 0,
+        ]);
+
+        $data['revenue'] = $revenues;
+
         $data['orders'] = $this->orderRepository
             ->getModel()
             ->select([
@@ -224,9 +247,10 @@ class DashboardController
         $totalOrders = $store->orders()->count();
         $compact = compact('user', 'store', 'data', 'totalProducts', 'totalOrders');
         if ($request->ajax()) {
-            return $response->setData([
-                'html' => view('plugins/marketplace::themes.dashboard.partials.main-content', $compact)->render(),
-            ]);
+            return $response
+                ->setData([
+                    'html' => view('plugins/marketplace::themes.dashboard.partials.main-content', $compact)->render(),
+                ]);
         }
         return view('plugins/marketplace::themes.dashboard.index', $compact);
     }
@@ -301,6 +325,20 @@ class DashboardController
      */
     public function getBecomeVendor()
     {
+        $customer = auth('customer')->user();
+        if ($customer->is_vendor) {
+            if (get_marketplace_setting('verify_vendor', 1) && !$customer->vendor_verified_at) {
+                SeoHelper::setTitle(__('Become Vendor'));
+
+                Theme::breadcrumb()
+                    ->add(__('Home'), route('public.index'))
+                    ->add(__('Approving'));
+
+                return Theme::scope('marketplace.approving-vendor', [], 'plugins/marketplace::themes.approving-vendor')->render();
+            }
+            return redirect()->route('marketplace.vendor.dashboard');
+        }
+
         SeoHelper::setTitle(__('Become Vendor'));
 
         Theme::breadcrumb()
@@ -318,37 +356,18 @@ class DashboardController
      */
     public function postBecomeVendor(BecomeVendorRequest $request, BaseHttpResponse $response)
     {
+        $customer = auth('customer')->user();
+        if ($customer->is_vendor) {
+            abort(404);
+        }
+
         $existing = SlugHelper::getSlug($request->input('shop_url'), SlugHelper::getPrefix(Store::class), Store::class);
 
         if ($existing) {
             return $response->setError()->setMessage(__('Shop URL is existing. Please choose another one!'));
         }
 
-        $store = $this->storeRepository->createOrUpdate([
-            'name'        => $request->input('shop_name'),
-            'phone'       => $request->input('shop_phone'),
-            'customer_id' => auth('customer')->id(),
-        ]);
-
-        Slug::create([
-            'reference_type' => Store::class,
-            'reference_id'   => $store->id,
-            'key'            => Str::slug($request->input('shop_url')),
-            'prefix'         => SlugHelper::getPrefix(Store::class),
-        ]);
-
-        $customer = auth('customer')->user();
-
-        $customer->is_vendor = true;
-
-        if (!$customer->vendorInfo->id) {
-            // Create vendor info
-            $this->vendorInfoRepository->createOrUpdate([
-                'customer_id' => $customer->id,
-            ]);
-        }
-
-        $this->customerRepository->createOrUpdate($customer);
+        event(new Registered($customer));
 
         return $response->setNextUrl(route('marketplace.vendor.dashboard'))->setMessage(__('Registered successfully!'));
     }

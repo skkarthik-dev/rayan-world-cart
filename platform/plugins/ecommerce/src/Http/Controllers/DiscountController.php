@@ -10,11 +10,13 @@ use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Ecommerce\Http\Requests\DiscountRequest;
 use Botble\Ecommerce\Models\Discount;
 use Botble\Ecommerce\Repositories\Interfaces\DiscountInterface;
+use Botble\Ecommerce\Repositories\Interfaces\ProductInterface;
 use Botble\Ecommerce\Tables\DiscountTable;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -120,6 +122,17 @@ class DiscountController extends BaseController
                 if (!is_array($products)) {
                     $products = [$products];
                 }
+
+                foreach ($products as $productId) {
+                    $product = app(ProductInterface::class)->findById($productId);
+
+                    if (!$product || $product->is_variation) {
+                        Arr::forget($products, $productId);
+                    }
+
+                    $products = array_merge($products, $product->variations()->pluck('product_id')->all());
+                }
+
                 $discount->products()->attach($products);
             }
 
@@ -131,6 +144,16 @@ class DiscountController extends BaseController
 
                 if (!is_array($variants)) {
                     $variants = [$variants];
+                }
+
+                foreach ($variants as $variantId) {
+                    $product = app(ProductInterface::class)->findById($variantId);
+
+                    if (!$product || !$product->is_variation || !$product->original_product->id) {
+                        Arr::forget($products, $productId);
+                    }
+
+                    $variants = array_merge($variants, $product->original_product->id);
                 }
 
                 $discount->products()->attach($variants);
@@ -145,6 +168,7 @@ class DiscountController extends BaseController
                 if (!is_array($customers)) {
                     $customers = [$customers];
                 }
+
                 $discount->customers()->attach($customers);
             }
         }

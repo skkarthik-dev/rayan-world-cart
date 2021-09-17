@@ -7,6 +7,8 @@ use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Models\BaseModel;
 use Botble\Base\Traits\EnumCastable;
 use Botble\Ecommerce\Enums\StockStatusEnum;
+use Botble\Ecommerce\Facades\DiscountFacade;
+use Botble\Ecommerce\Facades\FlashSaleFacade;
 use Botble\Ecommerce\Services\Products\UpdateDefaultProductService;
 use EcommerceHelper;
 use Exception;
@@ -14,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
 
@@ -44,11 +45,8 @@ class Product extends BaseModel
         'allow_checkout_when_out_of_stock',
         'with_storehouse_management',
         'is_featured',
-        'options',
         'brand_id',
         'is_variation',
-        'is_searchable',
-        'is_show_on_list',
         'sale_type',
         'price',
         'sale_price',
@@ -58,11 +56,6 @@ class Product extends BaseModel
         'wide',
         'height',
         'weight',
-        'barcode',
-        'length_unit',
-        'wide_unit',
-        'height_unit',
-        'weight_unit',
         'tax_id',
         'status',
         'views',
@@ -396,7 +389,14 @@ class Product extends BaseModel
      */
     public function getFrontSalePriceAttribute()
     {
-        $promotion = $this->promotions->first();
+        if (!$this->is_variation) {
+            $productCollections = $this->productCollections;
+        } else {
+            $productCollections = $this->original_product->productCollections;
+        }
+
+        $promotion = DiscountFacade::getFacadeRoot()
+            ->promotionForProduct([$this->id], $productCollections->pluck('id')->all());
 
         if ($promotion) {
             $price = $this->price;
@@ -417,10 +417,11 @@ class Product extends BaseModel
                     }
                     break;
             }
+
             return $this->getComparePrice($price, $this->sale_price);
         }
 
-        $flashSale = $this->latestFlashSales->first();
+        $flashSale = FlashSaleFacade::getFacadeRoot()->flashSaleForProduct($this);
 
         if ($flashSale && $flashSale->pivot->quantity > $flashSale->pivot->sold) {
             return $this->getComparePrice($flashSale->pivot->price, $this->sale_price);
@@ -535,57 +536,12 @@ class Product extends BaseModel
      */
     public function promotions()
     {
-        return $this->belongsToMany(Discount::class, 'ec_discount_products', 'product_id')
+        return $this
+            ->belongsToMany(Discount::class, 'ec_discount_products', 'product_id')
             ->where('type', 'promotion')
             ->where('start_date', '<=', now())
-            ->leftJoin('ec_discount_product_collections', 'ec_discounts.id', '=',
-                'ec_discount_product_collections.discount_id')
-            ->leftJoin('ec_discount_customers', 'ec_discounts.id', '=', 'ec_discount_customers.discount_id')
+            ->whereIn('target', ['specific-product', 'product-variant'])
             ->where(function ($query) {
-                /**
-                 * @var Builder $query
-                 */
-                return $query
-                    ->where(function ($sub) {
-                        /**
-                         * @var Builder $sub
-                         */
-                        return $sub
-                            ->where(function ($subSub) {
-                                /**
-                                 * @var Builder $subSub
-                                 */
-                                return $subSub
-                                    ->where('target', 'specific-product')
-                                    ->orWhere('target', 'product-variant');
-                            })
-                            ->where('ec_discount_products.product_id', $this->id);
-                    })
-                    ->orWhere(function ($sub) {
-                        $collections = $this->productCollections->pluck('id')->all();
-
-                        /**
-                         * @var Builder $sub
-                         */
-                        return $sub
-                            ->where('target', 'group-products')
-                            ->whereIn('ec_discount_product_collections.product_collection_id', $collections);
-                    })
-                    ->orWhere(function ($sub) {
-                        $customerId = auth('customer')->check() ? auth('customer')->id() : -1;
-
-                        /**
-                         * @var Builder $sub
-                         */
-                        return $sub
-                            ->where('target', 'customer')
-                            ->where('ec_discount_customers.customer_id', $customerId);
-                    });
-            })
-            ->where(function ($query) {
-                /**
-                 * @var Builder $query
-                 */
                 return $query
                     ->whereNull('end_date')
                     ->orWhere('end_date', '>=', now());

@@ -15,19 +15,21 @@ class WithdrawalForm extends FormAbstract
      */
     public function buildForm()
     {
+        $symbol = ' (' . get_application_currency()->symbol . ')';
+
         $this
             ->setupModel(new Withdrawal)
             ->setValidatorClass(WithdrawalRequest::class)
             ->withCustomFields()
             ->add('amount', 'text', [
-                'label'      => trans('plugins/marketplace::withdrawal.forms.amount'),
+                'label'      => trans('plugins/marketplace::withdrawal.forms.amount') . $symbol,
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'disabled' => 'disabled',
                 ],
             ])
             ->add('fee', 'text', [
-                'label'      => trans('plugins/marketplace::withdrawal.forms.fee'),
+                'label'      => trans('plugins/marketplace::withdrawal.forms.fee') . $symbol,
                 'label_attr' => ['class' => 'control-label'],
                 'attr'       => [
                     'disabled' => 'disabled',
@@ -52,15 +54,25 @@ class WithdrawalForm extends FormAbstract
                 'label'      => trans('plugins/ecommerce::products.form.image'),
                 'label_attr' => ['class' => 'control-label'],
                 'values'     => $this->getModel() ? $this->getModel()->images : [],
-            ])
-            ->add('status', 'customSelect', [
-                'label'      => trans('core/base::tables.status'),
-                'label_attr' => ['class' => 'control-label required'],
-                'attr'       => [
-                    'class' => 'form-control select-full',
-                ],
-                'choices'    => WithdrawalStatusEnum::labels(),
-            ])
-            ->setBreakFieldPoint('status');
+            ]);
+            if ($this->getModel()->canEditStatus()) {
+                $this->add('status', 'customSelect', [
+                    'label'      => trans('core/base::tables.status'),
+                    'label_attr' => ['class' => 'control-label required'],
+                    'attr'       => [
+                        'class'    => 'form-control select-full',
+                    ],
+                    'choices'    => $this->getModel()->getNextStatuses(),
+                    'help_block' => [
+                        'text' => $this->getModel()->getStatusHelper(),
+                    ],
+                ]);
+            } else {
+                $this->add('status', 'html', [
+                    'html' => $this->getModel()->status->toHtml(),
+                ]);
+            }
+            
+            $this->setBreakFieldPoint('status');
     }
 }

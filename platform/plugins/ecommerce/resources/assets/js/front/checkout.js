@@ -46,6 +46,19 @@ class MainCheckout {
 
     init() {
         let target = '#main-checkout-product-info';
+
+        let disablePaymentMethodsForm = function () {
+            $('.payment-info-loading').show();
+            $('.payment-checkout-btn').prop('disabled', true);
+        }
+
+        let enablePaymentMethodsForm = function () {
+            $('.payment-info-loading').hide();
+            $('.payment-checkout-btn').prop('disabled', false);
+
+            document.dispatchEvent(new CustomEvent('payment-form-reloaded'));
+        }
+
         let loadShippingFeeAtTheFirstTime = function () {
             let shippingMethod = $(document).find('input[name=shipping_method]:checked').first();
             if (!shippingMethod.length) {
@@ -55,8 +68,7 @@ class MainCheckout {
             if (shippingMethod.length) {
                 shippingMethod.trigger('click');
 
-                $('.payment-info-loading').show();
-                $('.payment-checkout-btn').prop('disabled', true);
+                disablePaymentMethodsForm();
 
                 $('.mobile-total').text('...');
 
@@ -64,15 +76,14 @@ class MainCheckout {
                     + '?shipping_method=' + shippingMethod.val()
                     + '&shipping_option=' + shippingMethod.data('option')
                     + ' ' + target + ' > *', () => {
-                    $('.payment-info-loading').hide();
-                    $('.payment-checkout-btn').prop('disabled', false);
+                    enablePaymentMethodsForm();
                 });
             }
         }
 
         loadShippingFeeAtTheFirstTime();
 
-        let loadShippingFreeTheFirstTime2 = function () {
+        let loadShippingFeeAtTheSecondTime = function () {
             const $marketplace = $('.checkout-products-marketplace');
             if (!$marketplace || !$marketplace.length) {
                 return;
@@ -106,19 +117,18 @@ class MainCheckout {
                     });
                 }
             }
-            $('.payment-info-loading').show();
-            $('.payment-checkout-btn').prop('disabled', true);
+
+            disablePaymentMethodsForm();
 
             $(target).load(window.location.href + '?' + $.param(methods) + ' ' + target + ' > *', () => {
-                $('.payment-info-loading').hide();
-                $('.payment-checkout-btn').prop('disabled', false);
+                enablePaymentMethodsForm();
             });
         }
 
-        loadShippingFreeTheFirstTime2();
+        loadShippingFeeAtTheSecondTime();
 
         $(document).on('change', 'input.shipping_method_input', () => {
-            loadShippingFreeTheFirstTime2()
+            loadShippingFeeAtTheSecondTime()
         });
 
         $(document).on('change', 'input[name=shipping_method]', event => {
@@ -126,8 +136,7 @@ class MainCheckout {
             const $this = $(event.currentTarget);
             $('input[name=shipping_option]').val($this.data('option'));
 
-            $('.payment-info-loading').show();
-            $('.payment-checkout-btn').prop('disabled', true);
+            disablePaymentMethodsForm();
 
             $('.mobile-total').text('...');
 
@@ -135,8 +144,7 @@ class MainCheckout {
                 + '?shipping_method=' + $this.val()
                 + '&shipping_option=' + $this.data('option')
                 + ' ' + target + ' > *', () => {
-                $('.payment-info-loading').hide();
-                $('.payment-checkout-btn').prop('disabled', false);
+                enablePaymentMethodsForm();
             });
         });
 
@@ -153,8 +161,7 @@ class MainCheckout {
                     processData: false,
                     success: res => {
                         if (!res.error) {
-                            $('.shipping-info-loading').show();
-                            $('.payment-checkout-btn').prop('disabled', true);
+                            disablePaymentMethodsForm();
 
                             let $wrapper = $('#shipping-method-wrapper');
                             if ($wrapper.length) {
@@ -163,12 +170,11 @@ class MainCheckout {
                                     if (!isChecked) {
                                         $wrapper.find('input[name=shipping_method]:first-child').trigger('click'); // need re-check
                                     }
-                                    $('.payment-checkout-btn').prop('disabled', false);
-                                    $('.shipping-info-loading').hide();
+                                    enablePaymentMethodsForm();
                                 });
                             }
 
-                            loadShippingFreeTheFirstTime2(); // marketplace
+                            loadShippingFeeAtTheSecondTime(); // marketplace
                         }
                     },
                     error: res => {

@@ -73,12 +73,16 @@ class WithdrawalController extends BaseController
     {
         $withdrawal = $this->withdrawalRepository->findOrFail($id);
 
-        $withdrawal->fill([
-            'status'      => $request->input('status'),
+        $data = [
             'images'      => array_filter($request->input('images')),
             'user_id'     => Auth::user()->getKey(),
             'description' => $request->input('description'),
-        ]);
+        ];
+        if ($withdrawal->canEditStatus()) {
+            $data['status'] = $request->input('status');
+        }
+
+        $withdrawal->fill($data);
 
         $this->withdrawalRepository->createOrUpdate($withdrawal);
 

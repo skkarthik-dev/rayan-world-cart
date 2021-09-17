@@ -15,16 +15,22 @@
                        for="newsletter_mailchimp_api_key">{{ trans('plugins/newsletter::newsletter.settings.mailchimp_api_key') }}</label>
                 <input data-counter="120" type="text" class="next-input" name="newsletter_mailchimp_api_key"
                        id="newsletter_mailchimp_api_key"
-                       value="{{ setting('newsletter_mailchimp_api_key', config('plugins.newsletter.general.mailchimp.api_key')) }}"
+                       value="{{ setting('newsletter_mailchimp_api_key') }}"
                        placeholder="{{ trans('plugins/newsletter::newsletter.settings.mailchimp_api_key') }}">
             </div>
             <div class="form-group">
-                <label class="text-title-field"
-                       for="newsletter_mailchimp_list_id">{{ trans('plugins/newsletter::newsletter.settings.mailchimp_list_id') }}</label>
-                <input data-counter="120" type="text" class="next-input" name="newsletter_mailchimp_list_id"
-                       id="newsletter_mailchimp_list_id"
-                       value="{{ setting('newsletter_mailchimp_list_id', config('plugins.newsletter.general.mailchimp.list_id')) }}"
-                       placeholder="{{ trans('plugins/newsletter::newsletter.settings.mailchimp_list_id') }}">
+                @if (empty($mailchimpContactList))
+                    <label class="text-title-field"
+                           for="newsletter_mailchimp_list_id">{{ trans('plugins/newsletter::newsletter.settings.mailchimp_list_id') }}</label>
+                    <input data-counter="120" type="text" class="next-input" name="newsletter_mailchimp_list_id"
+                           id="newsletter_mailchimp_list_id"
+                           value="{{ setting('newsletter_mailchimp_list_id') }}"
+                           placeholder="{{ trans('plugins/newsletter::newsletter.settings.mailchimp_list_id') }}">
+                @else
+                    <label class="text-title-field"
+                           for="newsletter_mailchimp_list_id">{{ trans('plugins/newsletter::newsletter.settings.mailchimp_list') }}</label>
+                    {!! Form::customSelect('newsletter_mailchimp_list_id', $mailchimpContactList, setting('newsletter_mailchimp_list_id')) !!}
+                @endif
             </div>
 
             <div class="form-group">
@@ -32,16 +38,22 @@
                        for="newsletter_sendgrid_api_key">{{ trans('plugins/newsletter::newsletter.settings.sendgrid_api_key') }}</label>
                 <input data-counter="120" type="text" class="next-input" name="newsletter_sendgrid_api_key"
                        id="newsletter_sendgrid_api_key"
-                       value="{{ setting('newsletter_sendgrid_api_key', config('plugins.newsletter.general.sendgrid.api_key')) }}"
+                       value="{{ setting('newsletter_sendgrid_api_key') }}"
                        placeholder="{{ trans('plugins/newsletter::newsletter.settings.sendgrid_api_key') }}">
             </div>
             <div class="form-group">
-                <label class="text-title-field"
-                       for="newsletter_sendgrid_list_id">{{ trans('plugins/newsletter::newsletter.settings.sendgrid_list_id') }}</label>
-                <input data-counter="120" type="text" class="next-input" name="newsletter_sendgrid_list_id"
-                       id="newsletter_sendgrid_list_id"
-                       value="{{ setting('newsletter_sendgrid_list_id', config('plugins.newsletter.general.sendgrid.list_id')) }}"
-                       placeholder="{{ trans('plugins/newsletter::newsletter.settings.sendgrid_list_id') }}">
+                @if (empty($sendGridContactList))
+                    <label class="text-title-field"
+                           for="newsletter_sendgrid_list_id">{{ trans('plugins/newsletter::newsletter.settings.sendgrid_list_id') }}</label>
+                    <input data-counter="120" type="text" class="next-input" name="newsletter_sendgrid_list_id"
+                           id="newsletter_sendgrid_list_id"
+                           value="{{ setting('newsletter_sendgrid_list_id') }}"
+                           placeholder="{{ trans('plugins/newsletter::newsletter.settings.sendgrid_list_id') }}">
+                @else
+                    <label class="text-title-field"
+                           for="newsletter_sendgrid_list_id">{{ trans('plugins/newsletter::newsletter.settings.sendgrid_list') }}</label>
+                    {!! Form::customSelect('newsletter_sendgrid_list_id', $sendGridContactList, setting('newsletter_sendgrid_list_id')) !!}
+                @endif
             </div>
         </div>
     </div>

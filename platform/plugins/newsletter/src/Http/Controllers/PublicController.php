@@ -41,19 +41,16 @@ class PublicController extends Controller
         if (!$newsletter) {
             $newsletter = $this->newsletterRepository->createOrUpdate($request->input());
 
-            $mailchimpApiKey = setting('newsletter_mailchimp_api_key',
-                config('plugins.newsletter.general.mailchimp.api_key'));
-            $mailchimpListId = setting('newsletter_mailchimp_list_id',
-                config('plugins.newsletter.general.mailchimp.list_id'));
+            $mailchimpApiKey = setting('newsletter_mailchimp_api_key');
+            $mailchimpListId = setting('newsletter_mailchimp_list_id');
 
             if ($mailchimpApiKey && $mailchimpListId) {
                 Newsletter::subscribe($newsletter->email);
             }
 
-            $sendgridApiKey = setting('newsletter_sendgrid_api_key',
-                config('plugins.newsletter.general.sendgrid.api_key'));
-            $sendgridListId = setting('newsletter_sendgrid_list_id',
-                config('plugins.newsletter.general.sendgrid.list_id'));
+            $sendgridApiKey = setting('newsletter_sendgrid_api_key');
+            $sendgridListId = setting('newsletter_sendgrid_list_id');
+
             if ($sendgridApiKey && $sendgridListId) {
                 $sg = new SendGrid($sendgridApiKey);
 
@@ -66,7 +63,7 @@ class PublicController extends Controller
                             {
                                 "first_name": "' . $request->input('first_name') . '",
                                 "last_name": "' . $request->input('last_name') . '",
-                                "email": "' . $request->input('email') . '"
+                                "email": "' . $newsletter->email . '"
                             }
                         ]
                     }'
@@ -107,10 +104,8 @@ class PublicController extends Controller
             $newsletter->status = NewsletterStatusEnum::UNSUBSCRIBED;
             $this->newsletterRepository->createOrUpdate($newsletter);
 
-            $mailchimpApiKey = setting('newsletter_mailchimp_api_key',
-                config('plugins.newsletter.general.mailchimp.api_key'));
-            $mailchimpListId = setting('newsletter_mailchimp_list_id',
-                config('plugins.newsletter.general.mailchimp.list_id'));
+            $mailchimpApiKey = setting('newsletter_mailchimp_api_key');
+            $mailchimpListId = setting('newsletter_mailchimp_list_id');
 
             if ($mailchimpApiKey && $mailchimpListId) {
                 Newsletter::unsubscribe($newsletter->email);

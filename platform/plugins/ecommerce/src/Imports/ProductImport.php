@@ -334,7 +334,6 @@ class ProductImport implements  ToModel,
 
             $productRelatedToVariation->name = $product->name;
             $productRelatedToVariation->status = $product->status;
-            $productRelatedToVariation->category_id = $product->category_id;
             $productRelatedToVariation->brand_id = $product->brand_id;
             $productRelatedToVariation->is_variation = 1;
 
@@ -433,7 +432,10 @@ class ProductImport implements  ToModel,
     protected function setTaxToRow(array $row) : array
     {
         $row['tax_id'] = 0;
+
         if (!empty($row['tax'])) {
+            $row['tax'] = trim($row['tax']);
+
             $tax = $this->taxes->firstWhere('keyword', $row['tax']);
             if ($tax) {
                 $taxId = $tax['tax_id'];
@@ -464,7 +466,10 @@ class ProductImport implements  ToModel,
     protected function setBrandToRow(array $row) : array
     {
         $row['brand_id'] = 0;
+
         if (!empty($row['brand'])) {
+            $row['brand'] = trim($row['brand']);
+
             $brand = $this->brands->firstWhere('keyword', $row['brand']);
             if ($brand) {
                 $brandId = $brand['brand_id'];
@@ -498,6 +503,8 @@ class ProductImport implements  ToModel,
             $categories = $row['categories'];
             $categoryIds = [];
             foreach ($categories as $value) {
+                $value = trim($value);
+
                 $category = $this->categories->firstWhere('keyword', $value);
                 if ($category) {
                     $categoryId = $category['category_id'];

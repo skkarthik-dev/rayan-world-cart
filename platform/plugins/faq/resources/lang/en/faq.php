@@ -16,4 +16,6 @@ return [
         'enable_faq_schema'             => 'Enable FAQ Schema?',
         'enable_faq_schema_description' => 'Learn more: https://developers.google.com/search/docs/data-types/faqpage',
     ],
+    'select_category'   => 'Select a category',
+    'add_item'          => 'Add item',
 ];

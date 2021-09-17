@@ -24,8 +24,6 @@
                             'variations',
                             'productCollections',
                             'variationAttributeSwatchesForProductList',
-                            'promotions',
-                            'latestFlashSales',
                         ],
                         'withCount' => $withCount,
                     ]);

@@ -15,6 +15,8 @@ $(() => {
 
     let $dateRange = $('.date-range-picker');
     let dateFormat = $dateRange.data('format') || 'YYYY-MM-DD';
+    let startDate = $dateRange.data('start-date') || moment().subtract(29, 'days');
+
     let today = moment();
     let endDate = moment().endOf('month');
     if (endDate > today) {
@@ -25,6 +27,7 @@ $(() => {
         [rangesTrans.today]: [today, today],
         [rangesTrans.this_week]: [moment().startOf('week'), today],
         [rangesTrans.last_7_days]: [moment().subtract(6, 'days'), today],
+        [rangesTrans.last_30_days]: [moment().subtract(29, 'days'), today],
         [rangesTrans.this_month]: [moment().startOf('month'), endDate],
         [rangesTrans.this_year]: [
             moment().startOf('year'),
@@ -36,7 +39,7 @@ $(() => {
         {
             ranges: ranges,
             alwaysShowCalendars: true,
-            startDate: moment().startOf('month'),
+            startDate: startDate,
             endDate: endDate,
             maxDate: endDate,
             opens: 'left',

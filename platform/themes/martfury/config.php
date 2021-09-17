@@ -37,7 +37,7 @@ return [
         'beforeRenderTheme' => function (Theme $theme) {
             // You may use this event to set up your assets.
 
-            $version = '1.12.0';
+            $version = '1.13.0';
 
             $theme->asset()->usePath()->add('linearicons', 'fonts/Linearicons/Linearicons/Font/demo-files/demo.css');
             $theme->asset()->usePath()->add('bootstrap-css', 'plugins/bootstrap/css/bootstrap.min.css');

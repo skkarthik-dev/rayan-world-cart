@@ -13,7 +13,6 @@ use Botble\Page\Models\Page;
 use Botble\Page\Repositories\Interfaces\PageInterface;
 use Eloquent;
 use Html;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -23,13 +22,9 @@ use Illuminate\Support\Str;
 use Menu;
 use stdClass;
 use Theme;
-use Throwable;
 
 class HookServiceProvider extends ServiceProvider
 {
-    /**
-     * @throws Throwable
-     */
     public function boot()
     {
         if (defined('MENU_ACTION_SIDEBAR_OPTIONS')) {
@@ -54,7 +49,8 @@ class HookServiceProvider extends ServiceProvider
             add_shortcode('blog-posts', trans('plugins/blog::base.short_code_name'),
                 trans('plugins/blog::base.short_code_description'), [$this, 'renderBlogPosts']);
             shortcode()->setAdminConfig('blog-posts', function ($attributes, $content) {
-                return view('plugins/blog::partials.posts-short-code-admin-config', compact('attributes', 'content'))->render();
+                return view('plugins/blog::partials.posts-short-code-admin-config', compact('attributes', 'content'))
+                    ->render();
             });
         }
 
@@ -81,7 +77,7 @@ class HookServiceProvider extends ServiceProvider
                 'fields'     => [
                     [
                         'id'         => 'blog_page_id',
-                        'type'       => 'select',
+                        'type'       => 'customSelect',
                         'label'      => trans('plugins/blog::base.blog_page_id'),
                         'attributes' => [
                             'name'    => 'blog_page_id',
@@ -122,7 +118,6 @@ class HookServiceProvider extends ServiceProvider
 
     /**
      * Register sidebar options in menu
-     * @throws Throwable
      */
     public function registerMenuOptions()
     {
@@ -139,7 +134,6 @@ class HookServiceProvider extends ServiceProvider
      * @param array $widgets
      * @param Collection $widgetSettings
      * @return array
-     * @throws Throwable
      */
     public function registerDashboardWidgets($widgets, $widgetSettings)
     {
@@ -164,7 +158,6 @@ class HookServiceProvider extends ServiceProvider
     /**
      * @param Eloquent $slug
      * @return array|Eloquent
-     * @throws BindingResolutionException
      */
     public function handleSingleView($slug)
     {
@@ -174,7 +167,6 @@ class HookServiceProvider extends ServiceProvider
     /**
      * @param stdClass $shortcode
      * @return array|string
-     * @throws Throwable
      */
     public function renderBlogPosts($shortcode)
     {
@@ -193,7 +185,6 @@ class HookServiceProvider extends ServiceProvider
      * @param string|null $content
      * @param Page $page
      * @return array|string|null
-     * @throws Throwable
      */
     public function renderBlogPage(?string $content, Page $page)
     {
@@ -227,6 +218,7 @@ class HookServiceProvider extends ServiceProvider
         if ($page->id == theme_option('blog_page_id', setting('blog_page_id'))) {
             $subTitle = Html::tag('span', trans('plugins/blog::base.blog_page'), ['class' => 'additional-page-name'])
                 ->toHtml();
+
             if (Str::contains($name, ' —')) {
                 return $name . ', ' . $subTitle;
             }
@@ -241,12 +233,13 @@ class HookServiceProvider extends ServiceProvider
      * @param BaseModel $model
      * @param string $priority
      * @return string
-     * @throws Throwable
      */
     public function addLanguageChooser($priority, $model)
     {
         if ($priority == 'head' && $model instanceof Category) {
+
             $route = 'categories.index';
+
             if ($route) {
                 echo view('plugins/language::partials.admin-list-language-chooser', compact('route'))->render();
             }

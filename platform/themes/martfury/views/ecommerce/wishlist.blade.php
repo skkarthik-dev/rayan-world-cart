@@ -6,7 +6,7 @@
         <div class="ps-section__content">
             @if ((auth('customer')->check() && count($wishlist) > 0 && $wishlist->count() > 0) || Cart::instance('wishlist')->count())
                 <div class="table-responsive">
-                <table class="table ps-table--whishlist ps-table--responsive">
+                <table class="table ps-table--wishlist ps-table--responsive">
                     <thead>
                     <tr>
                         <th></th>

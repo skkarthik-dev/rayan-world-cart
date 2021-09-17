@@ -115,6 +115,15 @@ class HookServiceProvider extends ServiceProvider
     public function checkoutWithPaystack(array $data, Request $request)
     {
         if ($request->input('payment_method') == PAYSTACK_PAYMENT_METHOD_NAME) {
+            $supportedCurrencies = (new PaystackPaymentService)->supportedCurrencyCodes();
+
+            if (!in_array($data['currency'], $supportedCurrencies)) {
+                $data['error'] = true;
+                $data['message'] = __(":name doesn't support :currency. List of currencies supported by :name: :currencies.", ['name' => 'Paystack', 'currency' => $data['currency'], 'currencies' => implode(', ', $supportedCurrencies)]);
+
+                return $data;
+            }
+
             $orderIds = (array) $request->input('order_id', []);
             $orderId = Arr::first($orderIds);
             $orderAddress = $this->app->make(OrderAddressInterface::class)->getFirstBy(['order_id' => $orderId]);
@@ -123,8 +132,8 @@ class HookServiceProvider extends ServiceProvider
                 $response = Paystack::getAuthorizationResponse([
                     'reference' => Paystack::genTranxRef(),
                     'quantity'  => 1,
-                    'currency'  => $request->input('currency'),
-                    'amount'    => (int)$request->input('amount') * 100,
+                    'currency'  => $data['currency'],
+                    'amount'    => (int)$data['amount'] * 100,
                     'email'     => $orderAddress ? $orderAddress->email : 'no-email@domain.com',
                     'metadata'  => json_encode(['order_id' => $orderIds]),
                 ]);

@@ -30,4 +30,18 @@ class PaystackPaymentService extends PaystackPaymentAbstract
     public function afterMakePayment(Request $request)
     {
     }
+
+    /**
+     * List currencies supported https://support.paystack.com/hc/en-us/articles/360009973779
+     * @return string[]
+     */
+    public function supportedCurrencyCodes(): array
+    {
+        return [
+            'NGN',
+            'GHS',
+            'USD',
+            'ZAR',
+        ];
+    }
 }

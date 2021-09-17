@@ -16,6 +16,7 @@ use Botble\Ecommerce\Services\HandleRemoveCouponService;
 use Botble\Ecommerce\Services\HandleShippingFeeService;
 use Botble\Marketplace\Repositories\Interfaces\RevenueInterface;
 use Botble\Marketplace\Repositories\Interfaces\StoreInterface;
+use Botble\Marketplace\Repositories\Interfaces\VendorInfoInterface;
 use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Services\Gateways\BankTransferPaymentService;
 use Botble\Payment\Services\Gateways\CodPaymentService;
@@ -1235,6 +1236,12 @@ class OrderSupportServiceProvider extends ServiceProvider
         if ($order->store && $order->store->customer) {
             $customer = $order->store->customer;
             $vendorInfo = $customer->vendorInfo;
+            if (!$vendorInfo->id) {
+                $vendorInfo = $this->app->make(VendorInfoInterface::class)
+                    ->createOrUpdate([
+                        'customer_id' => $customer->id,
+                    ]);
+            }
 
             if ($vendorInfo->id) {
                 $revenue = $this->app->make(RevenueInterface::class)->getFirstBy(['order_id' => $order->id]);

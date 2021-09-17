@@ -47,7 +47,7 @@ class PaymentHelper
             'amount'          => $data['amount'],
             'currency'        => $data['currency'],
             'charge_id'       => $data['charge_id'],
-            'order_id'        => Arr::first($orderIds),
+            'order_id'        => (int)Arr::first($orderIds),
             'customer_id'     => Arr::get($data, 'customer_id'),
             'customer_type'   => Arr::get($data, 'customer_type'),
             'payment_channel' => $paymentChannel,

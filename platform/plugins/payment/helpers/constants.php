@@ -3,11 +3,17 @@
 if (!defined('PAYMENT_MODULE_SCREEN_NAME')) {
     define('PAYMENT_MODULE_SCREEN_NAME', 'payment');
 }
+
 if (!defined('ACTION_AFTER_UPDATE_PAYMENT')) {
     define('ACTION_AFTER_UPDATE_PAYMENT', 'action_after_update_payment');
 }
+
 if (!defined('PAYMENT_METHODS_SETTINGS_PAGE')) {
     define('PAYMENT_METHODS_SETTINGS_PAGE', 'payment-methods');
+}
+
+if (!defined('PAYMENT_METHOD_SETTINGS_CONTENT')) {
+    define('PAYMENT_METHOD_SETTINGS_CONTENT', 'payment-method-setting-content');
 }
 
 if (!defined('PAYMENT_FILTER_ADDITIONAL_PAYMENT_METHODS')) {

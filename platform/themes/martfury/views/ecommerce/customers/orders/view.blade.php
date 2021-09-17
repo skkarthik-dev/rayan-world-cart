@@ -10,7 +10,10 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="order-slogan">
-                            <img width="100" src="{{ RvMedia::getImageUrl(theme_option('logo')) }}"
+                            @php
+                                $logo = theme_option('logo_in_the_checkout_page') ?: theme_option('logo');
+                            @endphp
+                            <img width="100" src="{{ RvMedia::getImageUrl($logo) }}"
                                  alt="{{ theme_option('site_title') }}">
                             <br/>
                             {{ setting('contact_address') }}
@@ -26,7 +29,7 @@
                     </div>
                 </div>
 
-                <h6>{{ __('Order information') }}</h6>
+                <h5>{{ __('Order information') }}</h5>
                 <div class="col-12">
                     <span>{{ __('Order status') }}:</span> <span
                         class="order-detail-value">{!! $order->status->toHtml() !!}</span>
@@ -63,7 +66,7 @@
                     @endif
                 </div>
                 <br>
-                <h6>{{ __('Customer information') }}</h6>
+                <h5>{{ __('Customer information') }}</h5>
 
                 <div class="col-12">
                     <span>{{ __('Full Name') }}:</span> <span class="order-detail-value">{{ $order->address->name }} </span>
@@ -87,7 +90,7 @@
                         class="order-detail-value"> {{ $order->address->state }} </span>
                 </div>
                 <br>
-                <h6>{{ __('Order detail') }}</h6>
+                <h5>{{ __('Order detail') }}</h5>
                 <div class="col-12">
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
@@ -169,9 +172,9 @@
 
                 <br>
                 <div>
-                    <a href="{{ route('customer.print-order', $order->id) }}" class="ps-btn ps-btn--sm">{{ __('Print order') }}</a>
+                    <a href="{{ route('customer.print-order', $order->id) }}" class="ps-btn ps-btn--sm mr-10"><i class="fa fa-download"></i> {{ __('Download invoice') }}</a>
                     @if ($order->canBeCanceled())
-                        <a href="{{ route('customer.orders.cancel', $order->id) }}" class="ps-btn ps-btn--sm">{{ __('Cancel order') }}</a>
+                        <a href="{{ route('customer.orders.cancel', $order->id) }}" onclick="return confirm('{{ __('Are you sure?') }}')" class="ps-btn ps-btn--sm ps-btn--danger">{{ __('Cancel order') }}</a>
                     @endif
                 </div>
             </div>

@@ -7,7 +7,6 @@ use Botble\Ecommerce\Repositories\Interfaces\ProductCollectionInterface;
 use Botble\Ecommerce\Repositories\Interfaces\ProductInterface;
 use Botble\Ecommerce\Repositories\Interfaces\ReviewInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 if (!function_exists('get_product_by_id')) {
@@ -46,6 +45,7 @@ if (!function_exists('get_products')) {
                 'ec_products.*',
             ],
             'with'      => ['slugable'],
+            'withCount' => [],
         ], $params);
 
         return app(ProductInterface::class)->getProducts($params);
@@ -240,8 +240,12 @@ if (!function_exists('get_featured_product_categories')) {
     function get_featured_product_categories($args = [])
     {
         $params = array_merge([
-            'limit'     => 0,
-            'order'     => [
+            'condition' => [
+                'ec_product_categories.is_featured' => 1,
+                'ec_product_categories.status'      => BaseStatusEnum::PUBLISHED,
+            ],
+            'take'        => 5,
+            'order_by'     => [
                 'ec_product_categories.order' => 'DESC',
             ],
             'select'    => ['*'],
@@ -249,16 +253,7 @@ if (!function_exists('get_featured_product_categories')) {
             'withCount' => [],
         ], $args);
 
-        return app(ProductCategoryInterface::class)->advancedGet([
-            'condition' => [
-                'ec_product_categories.is_featured' => 1,
-                'ec_product_categories.status'      => BaseStatusEnum::PUBLISHED,
-            ],
-            'take'      => $params['limit'],
-            'order_by'  => $params['order'],
-            'select'    => $params['select'],
-            'withCount' => Arr::get($params, 'withCount', []),
-        ]);
+        return app(ProductCategoryInterface::class)->advancedGet($params);
     }
 }
 
@@ -367,8 +362,6 @@ if (!function_exists('get_related_products')) {
                 'variations',
                 'productCollections',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
             ],
         ];
 
@@ -419,8 +412,6 @@ if (!function_exists('get_cross_sale_products')) {
             'variations',
             'productCollections',
             'variationAttributeSwatchesForProductList',
-            'promotions',
-            'latestFlashSales',
         ], $with);
 
         return $product->crossSales()->limit($limit)->with($with)->withCount($withCount)->get();
@@ -451,8 +442,6 @@ if (!function_exists('get_up_sale_products')) {
             'variations',
             'productCollections',
             'variationAttributeSwatchesForProductList',
-            'promotions',
-            'latestFlashSales',
         ], $with);
 
         return $product->upSales()->limit($limit)->with($with)->withCount($withCount)->get();
@@ -491,8 +480,6 @@ if (!function_exists('get_cart_cross_sale_products')) {
                 'variations',
                 'productCollections',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
             ], $with),
         ];
 

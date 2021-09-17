@@ -67,9 +67,12 @@
                                 </span>
                             @endif
                         </div>
+
+                        {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
                         <p class="product-description" id="detail-description">
                             {!! $product->description !!}
                         </p>
+                        {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
 
                         <div class="text-warning"></div>
                         <div class="row product-filters">

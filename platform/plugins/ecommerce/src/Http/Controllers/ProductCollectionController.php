@@ -68,7 +68,7 @@ class ProductCollectionController extends BaseController
         $productCollection = $this->productCollectionRepository->getModel();
         $productCollection->fill($request->input());
 
-        $productCollection->slug = $this->productCollectionRepository->createSlug($request->get('slug'), 0);
+        $productCollection->slug = $this->productCollectionRepository->createSlug($request->input('slug'), 0);
 
         $productCollection = $this->productCollectionRepository->createOrUpdate($productCollection);
 

@@ -66,6 +66,7 @@ class CreateMarketplaceTable extends Migration
             $table->string('description', 400)->nullable();
             $table->longText('content')->nullable();
             $table->string('status', 60)->default('published');
+            $table->dateTime('vendor_verified_at')->nullable();
             $table->timestamps();
         });
 

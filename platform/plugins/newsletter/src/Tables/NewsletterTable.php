@@ -142,7 +142,7 @@ class NewsletterTable extends TableAbstract
             ],
             'status'     => [
                 'title'    => trans('core/base::tables.status'),
-                'type'     => 'select',
+                'type'     => 'customSelect',
                 'choices'  => NewsletterStatusEnum::labels(),
                 'validate' => 'required|' . Rule::in(NewsletterStatusEnum::values()),
             ],

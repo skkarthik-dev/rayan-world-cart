@@ -65,6 +65,13 @@ return [
         'verify_customer_email'                 => "Verify customer's email?",
         'minimum_order_amount'                  => 'Minimum order amount to place an order (:currency).',
         'enable_guest_checkout'                 => 'Enable guest checkout?',
+        'payment_method_cod_minimum_amount'     => 'Minimum order amount - :currency (Optional)',
+        'review'                                => [
+            'max_file_size'   => 'Review max file size (MB)',
+            'max_file_number' => 'Review max file number',
+        ],
+        'invoice_font_family'                   => 'Invoice font family',
+        'enable_invoice_stamp'                  => 'Enable invoice stamp',
     ],
     'store_address'                   => 'Store address',
     'store_phone'                     => 'Store phone',

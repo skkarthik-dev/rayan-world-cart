@@ -56,12 +56,12 @@ class RevenueTable extends TableAbstract
                 return format_price($item->current_balance);
             })
             ->editColumn('order_id', function ($item) {
-                if ($item->order) {
-                    return Html::link(route('marketplace.vendor.orders.edit', $item->order->id),
-                        get_order_code($item->order->id), ['target' => '_blank']);
+                if (!$item->order->id) {
+                    return '&mdash;';
                 }
 
-                return '&mdash;';
+                return Html::link(route('marketplace.vendor.orders.edit', $item->order->id),
+                    get_order_code($item->order->id), ['target' => '_blank']);
             })
             ->editColumn('created_at', function ($item) {
                 return BaseHelper::formatDate($item->created_at);

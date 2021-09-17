@@ -14,10 +14,11 @@ use Botble\Marketplace\Models\Store;
 use Botble\Marketplace\Tables\DiscountTable;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Response;
 use Throwable;
 
 class DiscountController extends BaseController
@@ -135,7 +136,9 @@ class DiscountController extends BaseController
                 return $response
                     ->setError();
             }
+
             $this->discountRepository->delete($discount);
+
             event(new DeletedContentEvent(DISCOUNT_MODULE_SCREEN_NAME, $request, $discount));
 
             return $response->setMessage(trans('core/base::notices.delete_success_message'));
@@ -162,10 +165,12 @@ class DiscountController extends BaseController
         }
 
         foreach ($ids as $id) {
+            $discount = $this->discountRepository->findOrFail($id);
+
             if ($discount->store_id != $this->getStore()->id) {
                 continue;
             }
-            $discount = $this->discountRepository->findOrFail($id);
+
             $this->discountRepository->delete($discount);
             event(new DeletedContentEvent(DISCOUNT_MODULE_SCREEN_NAME, $request, $discount));
         }

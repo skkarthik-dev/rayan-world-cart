@@ -57,6 +57,11 @@ class WithdrawalTable extends TableAbstract
                 if (!Auth::user()->hasPermission('customers.edit')) {
                     return $item->customer->name;
                 }
+
+                if (!$item->customer->id) {
+                    return '&mdash;';
+                }
+
                 return Html::link(route('customers.edit', $item->customer->id), $item->customer->name);
             })
             ->editColumn('currency', function ($item) {
@@ -72,7 +77,7 @@ class WithdrawalTable extends TableAbstract
                 return $item->status->toHtml();
             })
             ->addColumn('operations', function ($item) {
-                return $this->getOperations('marketplace.withdrawal.edit', 'marketplace.withdrawal.destroy', $item);
+                return $this->getOperations('marketplace.withdrawal.edit', null, $item);
             });
 
         return $this->toJson($data);
@@ -128,15 +133,6 @@ class WithdrawalTable extends TableAbstract
                 'width' => '100px',
             ],
         ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function bulkActions(): array
-    {
-        return $this->addDeleteAction(route('marketplace.withdrawal.deletes'), 'marketplace.withdrawal.destroy',
-            parent::bulkActions());
     }
 
     /**

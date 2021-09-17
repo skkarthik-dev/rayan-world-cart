@@ -2,6 +2,7 @@
 
 namespace Botble\Marketplace\Providers;
 
+use Auth;
 use BaseHelper;
 use Botble\Base\Forms\FormAbstract;
 use Botble\Base\Models\BaseModel;
@@ -9,10 +10,10 @@ use Botble\Ecommerce\Models\Customer;
 use Botble\Ecommerce\Models\Discount;
 use Botble\Ecommerce\Models\Order;
 use Botble\Ecommerce\Models\Product;
+use Botble\Ecommerce\Repositories\Interfaces\CustomerInterface;
 use Botble\Marketplace\Models\Store;
 use Botble\Marketplace\Repositories\Interfaces\StoreInterface;
 use Botble\Marketplace\Repositories\Interfaces\VendorInfoInterface;
-use Botble\Table\Abstracts\TableAbstract;
 use Html;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
@@ -26,7 +27,7 @@ class HookServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->booted(function () {
-            add_filter(BASE_FILTER_BEFORE_RENDER_FORM, [$this, 'registerAdditionalData'], 128, 2);
+            add_filter(BASE_FILTER_AFTER_FORM_CREATED, [$this, 'registerAdditionalData'], 128, 2);
 
             add_action(BASE_ACTION_AFTER_CREATE_CONTENT, [$this, 'saveAdditionalData'], 128, 3);
 
@@ -40,6 +41,9 @@ class HookServiceProvider extends ServiceProvider
 
             add_filter(BASE_FILTER_REGISTER_CONTENT_TABS, [$this, 'addBankInfoTab'], 55, 3);
             add_filter(BASE_FILTER_REGISTER_CONTENT_TAB_INSIDE, [$this, 'addBankInfoContent'], 55, 3);
+
+            add_filter(BASE_FILTER_APPEND_MENU_NAME, [$this, 'getUnverifiedVendors'], 130, 2);
+            add_filter(BASE_FILTER_MENU_ITEMS_COUNT, [$this, 'getMenuItemCount'], 120, 1);
 
             if (function_exists('theme_option')) {
                 add_action(RENDERING_THEME_OPTIONS_PAGE, [$this, 'addThemeOptions'], 55);
@@ -106,6 +110,14 @@ class HookServiceProvider extends ServiceProvider
     public function saveAdditionalData($type, $request, $object)
     {
         if (!is_in_admin()) {
+            if (in_array($type, [CUSTOMER_MODULE_SCREEN_NAME])) {
+                if (!$object->is_vendor &&
+                    $request->input('is_vendor') &&
+                    get_marketplace_setting('verify_vendor', 1)) {
+                    $object->vendor_verified_at = now();
+                    $object->save();
+                }
+            }
             return false;
         }
 
@@ -267,5 +279,48 @@ class HookServiceProvider extends ServiceProvider
         }
 
         return $tabs;
+    }
+
+    /**
+     * @param int $number
+     * @param string $menuId
+     * @return string
+     */
+    public function getUnverifiedVendors($number, $menuId)
+    {
+        if (Auth::user()->hasPermission('marketplace.unverified-vendor.index') &&
+            in_array($menuId, ['cms-plugins-marketplace', 'cms-plugins-marketplace-unverified-vendor']) &&
+            get_marketplace_setting('verify_vendor', 1)
+        ) {
+            $attributes = [
+                'class'    => 'badge badge-success menu-item-count unverified-vendors',
+                'style'    => 'display: none;',
+            ];
+
+            return Html::tag('span', '', $attributes)->toHtml();
+        }
+
+        return $number;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function getMenuItemCount(array $data = []) : array
+    {
+        if (Auth::check() &&
+            Auth::user()->hasPermission('marketplace.unverified-vendor.index') &&
+            get_marketplace_setting('verify_vendor', 1)) {
+            $data[] = [
+                'key'   => 'unverified-vendors',
+                'value' => app(CustomerInterface::class)->count([
+                    'is_vendor'          => true,
+                    'vendor_verified_at' => null,
+                ]),
+            ];
+        }
+
+        return $data;
     }
 }

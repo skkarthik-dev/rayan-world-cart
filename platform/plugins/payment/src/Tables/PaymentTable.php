@@ -141,7 +141,7 @@ class PaymentTable extends TableAbstract
         return [
             'status'     => [
                 'title'    => trans('core/base::tables.status'),
-                'type'     => 'select',
+                'type'     => 'customSelect',
                 'choices'  => PaymentStatusEnum::labels(),
                 'validate' => 'required|in:' . implode(',', PaymentStatusEnum::values()),
             ],

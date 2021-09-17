@@ -15,9 +15,10 @@ return [
     'vendor'   => 'Vendor',
     'currency' => 'Currency',
     'forms'    => [
-        'amount'             => 'Amount',
-        'amount_placeholder' => 'Amount you want to withdrawal',
-        'fee'                => 'Fee',
-        'fee_helper'         => 'You have to pay a fee when withdrawing: :fee',
+        'amount'                => 'Amount',
+        'amount_placeholder'    => 'Amount you want to withdrawal',
+        'fee'                   => 'Fee',
+        'fee_helper'            => 'You have to pay a fee when withdrawing: :fee',
+        'pending_status_helper' => 'To complete withdrawal, please update status as processing then completed',
     ],
 ];

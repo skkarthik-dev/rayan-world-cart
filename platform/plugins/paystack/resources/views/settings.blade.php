@@ -102,6 +102,8 @@
                         <p class="payment-note">
                             {{ __('You will need to set Callback URL on') }} <a href="https://dashboard.paystack.com/#/settings/developer">https://dashboard.paystack.com/#/settings/developer</a> {{ __('to') }} <strong><code>{{ route('paystack.payment.callback') }}</code></strong>
                         </p>
+
+                        {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, PAYSTACK_PAYMENT_METHOD_NAME) !!}
                     </div>
                 </div>
             </div>
