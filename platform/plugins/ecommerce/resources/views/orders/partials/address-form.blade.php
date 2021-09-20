@@ -69,7 +69,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="form-group @if ($errors->has('address.name')) has-error @endif">
-                    <input type="text" name="address[name]" id="address_name" placeholder="{{ __('Full Name') }}" class="form-control address-control-item checkout-input"
+                    <input type="text" name="address[name]" id="address_name" placeholder="{{ __('Full Name') }}" class="form-control address-control-item address-control-item-required checkout-input"
                            value="{{ old('address.name', Arr::get($sessionCheckoutData, 'name')) }}">
                     {!! Form::error('address.name', $errors) !!}
                 </div>
@@ -79,13 +79,13 @@
         <div class="row">
             <div class="col-lg-8 col-12">
                 <div class="form-group  @if ($errors->has('address.email')) has-error @endif">
-                    <input type="text" name="address[email]" id="address_email" placeholder="{{ __('Email') }}" class="form-control address-control-item checkout-input" value="{{ old('address.email', Arr::get($sessionCheckoutData, 'email')) }}">
+                    <input type="text" name="address[email]" id="address_email" placeholder="{{ __('Email') }}" class="form-control address-control-item address-control-item-required checkout-input" value="{{ old('address.email', Arr::get($sessionCheckoutData, 'email')) }}">
                     {!! Form::error('address.email', $errors) !!}
                 </div>
             </div>
             <div class="col-lg-4 col-12">
                 <div class="form-group  @if ($errors->has('address.phone')) has-error @endif">
-                    <input type="text" name="address[phone]" id="address_phone" placeholder="{{ __('Phone') }}" class="form-control address-control-item checkout-input" value="{{ old('address.phone', Arr::get($sessionCheckoutData, 'phone')) }}">
+                    <input type="text" name="address[phone]" id="address_phone" placeholder="{{ __('Phone') }}" class="form-control address-control-item address-control-item-required checkout-input" value="{{ old('address.phone', Arr::get($sessionCheckoutData, 'phone')) }}">
                     {!! Form::error('address.phone', $errors) !!}
                 </div>
             </div>
@@ -96,7 +96,7 @@
                 <div class="col-12">
                     <div class="form-group @if ($errors->has('address.country')) has-error @endif">
                         <div class="select--arrow">
-                            <select name="address[country]" class="form-control address-control-item" id="address_country">
+                            <select name="address[country]" class="form-control address-control-item address-control-item-required" id="address_country">
                                 @foreach(['' => __('Select country...')] + EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
                                     <option value="{{ $countryCode }}" @if (old('address.country', Arr::get($sessionCheckoutData, 'country')) == $countryCode) selected @endif>{{ $countryName }}</option>
                                 @endforeach
@@ -112,21 +112,21 @@
 
             <div class="col-sm-6 col-12">
                 <div class="form-group @if ($errors->has('address.state')) has-error @endif">
-                    <input id="address_state" type="text" class="form-control address-control-item checkout-input" placeholder="{{ __('State') }}" name="address[state]" value="{{ old('address.state', Arr::get($sessionCheckoutData, 'state')) }}">
+                    <input id="address_state" type="text" class="form-control address-control-item address-control-item-required checkout-input" placeholder="{{ __('State') }}" name="address[state]" value="{{ old('address.state', Arr::get($sessionCheckoutData, 'state')) }}">
                     {!! Form::error('address.state', $errors) !!}
                 </div>
             </div>
 
             <div class="col-sm-6 col-12">
                 <div class="form-group  @if ($errors->has('address.city')) has-error @endif">
-                    <input id="address_city" type="text" class="form-control address-control-item checkout-input" placeholder="{{ __('City') }}" name="address[city]" value="{{ old('address.city', Arr::get($sessionCheckoutData, 'city')) }}">
+                    <input id="address_city" type="text" class="form-control address-control-item address-control-item-required checkout-input" placeholder="{{ __('City') }}" name="address[city]" value="{{ old('address.city', Arr::get($sessionCheckoutData, 'city')) }}">
                     {!! Form::error('address.city', $errors) !!}
                 </div>
             </div>
 
             <div class="col-12">
                 <div class="form-group @if ($errors->has('address.address')) has-error @endif">
-                    <input id="address_address" type="text" class="form-control address-control-item checkout-input" placeholder="{{ __('Address') }}" name="address[address]" value="{{ old('address.address', Arr::get($sessionCheckoutData, 'address')) }}">
+                    <input id="address_address" type="text" class="form-control address-control-item address-control-item-required checkout-input" placeholder="{{ __('Address') }}" name="address[address]" value="{{ old('address.address', Arr::get($sessionCheckoutData, 'address')) }}">
                     {!! Form::error('address.address', $errors) !!}
                 </div>
             </div>
@@ -134,7 +134,7 @@
             @if (EcommerceHelper::isZipCodeEnabled())
                 <div class="col-12">
                     <div class="form-group @if ($errors->has('address.zip_code')) has-error @endif">
-                        <input id="address_zip_code" type="text" class="form-control address-control-item checkout-input" placeholder="{{ __('Zip code') }}" name="address[zip_code]" value="{{ old('address.zip_code', Arr::get($sessionCheckoutData, 'zip_code')) }}">
+                        <input id="address_zip_code" type="text" class="form-control address-control-item address-control-item-required checkout-input" placeholder="{{ __('Zip code') }}" name="address[zip_code]" value="{{ old('address.zip_code', Arr::get($sessionCheckoutData, 'zip_code')) }}">
                         {!! Form::error('address.zip_code', $errors) !!}
                     </div>
                 </div>

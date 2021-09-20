@@ -244,7 +244,7 @@ if (!function_exists('get_featured_product_categories')) {
                 'ec_product_categories.is_featured' => 1,
                 'ec_product_categories.status'      => BaseStatusEnum::PUBLISHED,
             ],
-            'take'        => 5,
+            'take'         => null,
             'order_by'     => [
                 'ec_product_categories.order' => 'DESC',
             ],

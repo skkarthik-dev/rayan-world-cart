@@ -259,11 +259,11 @@ class PaymentController extends Controller
                 break;
             case PaymentMethodEnum::COD:
             case PaymentMethodEnum::BANK_TRANSFER:
-                break;
             default:
-                $detail = apply_filters(PAYMENT_FILTER_PAYMENT_INFO_DETAIL, null, $payment);
                 break;
         }
+
+        $detail = apply_filters(PAYMENT_FILTER_PAYMENT_INFO_DETAIL, $detail, $payment);
 
         $paymentStatuses = PaymentStatusEnum::labels();
 
@@ -376,16 +376,9 @@ class PaymentController extends Controller
     {
         $data = [];
         $payment = $this->paymentRepository->findOrFail($id);
-        switch ($payment->payment_channel) {
-            case PaymentMethodEnum::PAYPAL:
-            case PaymentMethodEnum::STRIPE:
-            case PaymentMethodEnum::COD:
-            case PaymentMethodEnum::BANK_TRANSFER:
-                break;
-            default:
-                $data = apply_filters(PAYMENT_FILTER_GET_REFUND_DETAIL, $data, $payment, $refundId);
-                break;
-        }
+
+        $data = apply_filters(PAYMENT_FILTER_GET_REFUND_DETAIL, $data, $payment, $refundId);
+
         if (!Arr::get($data, 'error') && Arr::get($data, 'data', [])) {
             $metadata = $payment->metadata;
             $refunds = Arr::get($metadata, 'refunds', []);
@@ -395,15 +388,19 @@ class PaymentController extends Controller
                         $refunds[$key] = array_merge($refunds[$key], (array) Arr::get($data, 'data'));
                     }
                 }
+
                 Arr::set($metadata, 'refunds', $refunds);
                 $payment->metadata = $metadata;
                 $payment->save();
             }
         }
+
         $view = Arr::get($data, 'view');
+
         if ($view) {
             $response->setData($view);
         }
+
         return $response
             ->setError((bool) Arr::get($data, 'error'))
             ->setMessage(Arr::get($data, 'message', ''));

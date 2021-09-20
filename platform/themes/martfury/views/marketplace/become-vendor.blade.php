@@ -5,6 +5,7 @@
             <h3>{{ SeoHelper::getTitle() }}</h3>
         </div>
         <div class="ps-form__content">
+            <input type="hidden" name="is_vendor" value="1">
             <div class="form-group">
                 <label for="shop-name" class="required">{{ __('Shop Name') }}</label>
                 <input class="form-control" name="shop_name" id="shop-name" type="text" value="{{ old('shop_name') }}" placeholder="{{ __('Shop Name') }}">

@@ -19,7 +19,7 @@
                         @if ($payment->customer_id && $payment->customer_type && class_exists($payment->customer_type))
                             <p>{{ trans('plugins/payment::payment.payer_name') }}: <strong>{{ $payment->customer->name }}</strong></p>
                             <p>{{ trans('plugins/payment::payment.email') }}: <strong>{{ $payment->customer->email }}</strong></p>
-                            <p>{{ trans('plugins/payment::payment.phone')  }}: <strong>{{ $payment->customer->phone ?  : 'N/A' }}</strong></p>
+                            <p>{{ trans('plugins/payment::payment.phone')  }}: <strong>{{ $payment->customer->phone ?: 'N/A' }}</strong></p>
                         @endif
 
                         {!! $detail !!}

@@ -116,11 +116,11 @@ class PaymentServiceProvider extends ServiceProvider
                     break;
                 case PaymentMethodEnum::COD:
                 case PaymentMethodEnum::BANK_TRANSFER:
-                    break;
                 default:
-                    $detail = apply_filters(PAYMENT_FILTER_PAYMENT_INFO_DETAIL, null, $payment);
                     break;
             }
+
+            $detail = apply_filters(PAYMENT_FILTER_PAYMENT_INFO_DETAIL, $detail, $payment);
 
             $view = 'plugins/payment::partials.info';
 
