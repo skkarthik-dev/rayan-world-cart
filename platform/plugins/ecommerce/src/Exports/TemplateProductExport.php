@@ -78,7 +78,7 @@ class TemplateProductExport implements FromCollection,
             'Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.',
         ]);
 
-        $productName = $productNames->random();
+        $productName = $productNames->random(1);
 
         $categories = app(ProductCategoryInterface::class)->getModel()->inRandomOrder()->limit(2)->get();
         $brands = app(BrandInterface::class)->pluck('name', 'id');
