@@ -1,7 +1,7 @@
 <div class="bg-light p-2">
     <p class="font-weight-bold mb-0">{{ __('Product(s)') }}:</p>
 </div>
-<div class="checkout-products-marketplace">
+<div class="checkout-products-marketplace" id="shipping-method-wrapper">
     @foreach ($groupedProducts as $grouped)
         @php
             $cartItems = $grouped['products']->pluck('cartItem');

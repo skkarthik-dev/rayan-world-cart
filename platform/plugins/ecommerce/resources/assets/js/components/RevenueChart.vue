@@ -55,6 +55,9 @@ export default {
             tooltip: {enabled: false}
         }).render();
 
+        if (jQuery && jQuery().tooltip) {
+            $('[data-toggle="tooltip"]').tooltip({placement: 'top', boundary: 'window'});
+        }
     },
 }
 </script>

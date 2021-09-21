@@ -347,6 +347,14 @@ var EditorManagement = /*#__PURE__*/function () {
         table: {
           contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
         },
+        htmlSupport: {
+          allow: [{
+            name: /.*/,
+            attributes: true,
+            classes: true,
+            styles: true
+          }]
+        },
         extraPlugins: [function (editor) {
           // Allow <iframe> elements in the model.
           editor.model.schema.register('iframe', {

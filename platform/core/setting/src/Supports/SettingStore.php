@@ -75,6 +75,7 @@ abstract class SettingStore
         } else {
             Arr::set($this->data, $key, $value);
         }
+
         return $this;
     }
 

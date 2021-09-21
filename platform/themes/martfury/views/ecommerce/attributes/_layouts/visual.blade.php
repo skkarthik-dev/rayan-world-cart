@@ -14,7 +14,7 @@
                                 name="attribute_{{ $set->slug }}"
                                 value="{{ $attribute->id }}"
                                 {{ $selected->where('id', $attribute->id)->count() ? 'checked' : '' }}>
-                            <span style="{{ $attribute->image ? 'background-image: url(' . RvMedia::getImageUrl($attribute->image) . ');' : 'background-color: ' . $attribute->color . ';' }}"></span>
+                            <span style="{{ $attribute->image ? 'background-image: url(' . RvMedia::getImageUrl($attribute->image) . ');' : 'background-color: ' . ($attribute->color ?: '#000') . ';' }}"></span>
                         </label>
                     </div>
                 </li>

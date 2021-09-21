@@ -4,6 +4,7 @@ namespace Botble\Marketplace\Http\Controllers;
 
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Base\Http\Responses\BaseHttpResponse;
+use Botble\Base\Supports\Helper;
 use Botble\Setting\Supports\SettingStore;
 use Exception;
 use Illuminate\Contracts\View\Factory;
@@ -58,6 +59,8 @@ class MarketplaceController extends BaseController
             return Str::startsWith($key, $settingKey);
         });
 
+        $preVerifyVendor = get_marketplace_setting('verify_vendor', 1);
+
         foreach ($filtered as $key => $settingValue) {
             switch ($key) {
                 case $settingKey . 'fee_per_order':
@@ -68,6 +71,10 @@ class MarketplaceController extends BaseController
         }
 
         $this->settingStore->save();
+
+        if ($preVerifyVendor != get_marketplace_setting('verify_vendor', 1)) {
+            Helper::clearCache();
+        }
 
         return $response
             ->setNextUrl(route('marketplace.settings'))

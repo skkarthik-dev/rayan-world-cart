@@ -22,22 +22,20 @@ class SubscribeNewsletterListener implements ShouldQueue
     {
         $mailer = EmailHandler::setModule(NEWSLETTER_MODULE_SCREEN_NAME)
             ->setVariableValues([
-                'newsletter_name'             => $event->newsLetter->name ?? 'N/A',
-                'newsletter_email'            => $event->newsLetter->email,
+                'newsletter_name'             => $event->newsletter->name ?? 'N/A',
+                'newsletter_email'            => $event->newsletter->email,
                 'newsletter_unsubscribe_link' => Html::link(
                     URL::signedRoute('public.newsletter.unsubscribe',
-                        ['user' => $event->newsLetter->id]),
+                        ['user' => $event->newsletter->id]),
                     __('here')
                 )->toHtml(),
             ]);
 
-        $mailchimpApiKey = setting('newsletter_mailchimp_api_key',
-            config('plugins.newsletter.general.mailchimp.api_key'));
-        $mailchimpListId = setting('newsletter_mailchimp_list_id',
-            config('plugins.newsletter.general.mailchimp.list_id'));
+        $mailchimpApiKey = setting('newsletter_mailchimp_api_key');
+        $mailchimpListId = setting('newsletter_mailchimp_list_id');
 
         if (!$mailchimpApiKey || !$mailchimpListId) {
-            $mailer->sendUsingTemplate('subscriber_email', $event->newsLetter->email);
+            $mailer->sendUsingTemplate('subscriber_email', $event->newsletter->email);
         }
 
         $mailer->sendUsingTemplate('admin_email');

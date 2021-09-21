@@ -4,6 +4,9 @@ namespace Botble\Ecommerce\Models;
 
 use Botble\Base\Supports\Avatar;
 use Botble\Ecommerce\Notifications\ResetPasswordNotification;
+use Botble\Marketplace\Models\Revenue;
+use Botble\Marketplace\Models\VendorInfo;
+use Botble\Marketplace\Models\Withdrawal;
 use Eloquent;
 use Exception;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -117,6 +120,14 @@ class Customer extends Authenticatable
             $customer->discounts()->detach();
             Review::where('customer_id', $customer->id)->delete();
             Wishlist::where('customer_id', $customer->id)->delete();
+            Address::where('customer_id', $customer->id)->delete();
+            Order::where('user_id', $customer->id)->update(['user_id' => null]);
+
+            if (is_plugin_active('marketplace')) {
+                Revenue::where('customer_id', $customer->id)->delete();
+                // Withdrawal::where('customer_id', $customer->id)->delete();
+                VendorInfo::where('customer_id', $customer->id)->delete();
+            }
         });
     }
 
@@ -142,5 +153,23 @@ class Customer extends Authenticatable
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class, 'customer_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function promotions()
+    {
+        return $this
+            ->belongsToMany(Discount::class, 'ec_discount_customers', 'customer_id')
+            ->where('type', 'promotion')
+            ->where('start_date', '<=', now())
+            ->where('target', 'customer')
+            ->where(function ($query) {
+                return $query
+                    ->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            })
+            ->where('product_quantity', 1);
     }
 }

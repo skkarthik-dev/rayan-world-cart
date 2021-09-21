@@ -376,7 +376,7 @@ class RvMedia
      * @param int $height
      * @return $this
      */
-    public function addSize(string $name, int $width, int $height): self
+    public function addSize(string $name, $width, $height = 'auto'): self
     {
         config(['core.media.media.sizes.' . $name => $width . 'x' . $height]);
 
@@ -477,6 +477,8 @@ class RvMedia
                     ];
                 }
             }
+
+            $request->offsetUnset('uploaded_file');
 
             $maxSize = $this->getServerConfigMaxUploadFileSize();
 
@@ -616,6 +618,7 @@ class RvMedia
 
         foreach ($this->getSizes() as $size) {
             $readableSize = explode('x', $size);
+
             $this->thumbnailService
                 ->setImage($this->getRealPath($file->url))
                 ->setSize($readableSize[0], $readableSize[1])
@@ -626,8 +629,20 @@ class RvMedia
 
         if (setting('media_watermark_enabled', $this->getConfig('watermark.enabled'))) {
             $image = Image::make($this->getRealPath($file->url));
-            $watermark = Image::make($this->getRealPath(setting('media_watermark_source',
-                $this->getConfig('watermark.source'))));
+
+            $watermarkImage = setting('media_watermark_source', $this->getConfig('watermark.source'));
+
+            if (!$watermarkImage) {
+                return true;
+            }
+
+            $watermarkPath = $this->getRealPath($watermarkImage);
+
+            if (!File::exists($watermarkPath)) {
+                return true;
+            }
+
+            $watermark = Image::make($watermarkPath);
 
             // 10% less then an actual image (play with this value)
             // Watermark will be 10 less then the actual width of the image

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Html;
+use Illuminate\Support\Collection;
 
 class Category extends BaseModel
 {
@@ -22,7 +23,7 @@ class Category extends BaseModel
     protected $table = 'categories';
 
     /**
-     * The date fields for the model.clear
+     * The date fields
      *
      * @var array
      */
@@ -73,11 +74,44 @@ class Category extends BaseModel
     }
 
     /**
+     * @return Collection
+     */
+    public function getParentsAttribute(): Collection
+    {
+        $parents = collect([]);
+
+        $parent = $this->parent;
+
+        while($parent->id) {
+            $parents->push($parent);
+            $parent = $parent->parent;
+        }
+
+        return $parents;
+    }
+
+    /**
      * @return HasMany
      */
     public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    /**
+     * @return array
+     */
+    public function getChildrenIds($category, $childrenIds = []): array
+    {
+        $children = $category->children()->select('id')->get();
+
+        foreach ($children as $child) {
+            $childrenIds[] = $child->id;
+
+            $childrenIds = array_merge($childrenIds, $this->getChildrenIds($child, $childrenIds));
+        }
+
+        return array_unique($childrenIds);
     }
 
     /**
@@ -96,6 +130,7 @@ class Category extends BaseModel
                 $badge = 'bg-success';
                 break;
         }
+
         return Html::tag('span', (string)$this->posts_count, [
             'class'               => 'badge font-weight-bold ' . $badge,
             'data-toggle'         => 'tooltip',

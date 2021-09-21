@@ -25,10 +25,6 @@ class ThemeManagementServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        if (!Theme::getThemeName()) {
-            setting()->set('theme', Arr::first(scan_folder(theme_path())));
-        }
-
         $theme = Theme::getThemeName();
 
         if (!empty($theme)) {

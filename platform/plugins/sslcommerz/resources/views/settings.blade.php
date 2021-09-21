@@ -98,6 +98,8 @@
                                 {{ trans('plugins/payment::payment.sandbox_mode') }}
                             </label>
                         </div>
+
+                        {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, SSLCOMMERZ_PAYMENT_METHOD_NAME) !!}
                     </div>
                 </div>
             </div>

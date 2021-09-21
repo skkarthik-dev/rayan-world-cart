@@ -9,9 +9,13 @@ use Botble\Newsletter\Repositories\Caches\NewsletterCacheDecorator;
 use Botble\Newsletter\Repositories\Eloquent\NewsletterRepository;
 use Botble\Newsletter\Repositories\Interfaces\NewsletterInterface;
 use EmailHandler;
+use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\ServiceProvider;
+use Newsletter as MailchimpNewsletter;
+use SendGrid;
 
 class NewsletterServiceProvider extends ServiceProvider
 {
@@ -31,7 +35,7 @@ class NewsletterServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->setNamespace('plugins/newsletter')
-            ->loadAndPublishConfigurations(['permissions', 'email', 'general'])
+            ->loadAndPublishConfigurations(['permissions', 'email'])
             ->loadAndPublishTranslations()
             ->loadRoutes(['web'])
             ->loadAndPublishViews()
@@ -56,10 +60,8 @@ class NewsletterServiceProvider extends ServiceProvider
         add_filter(BASE_FILTER_AFTER_SETTING_CONTENT, [$this, 'addSettings'], 249);
 
         $this->app->booted(function () {
-            $mailchimpApiKey = setting('newsletter_mailchimp_api_key',
-                config('plugins.newsletter.general.mailchimp.api_key'));
-            $mailchimpListId = setting('newsletter_mailchimp_list_id',
-                config('plugins.newsletter.general.mailchimp.list_id'));
+            $mailchimpApiKey = setting('newsletter_mailchimp_api_key');
+            $mailchimpListId = setting('newsletter_mailchimp_list_id');
 
             config([
                 'newsletter.apiKey'               => $mailchimpApiKey,
@@ -75,6 +77,43 @@ class NewsletterServiceProvider extends ServiceProvider
      */
     public function addSettings($data = null)
     {
-        return $data . view('plugins/newsletter::setting')->render();
+        $mailchimpContactList = [];
+        $mailchimpApiKey = setting('newsletter_mailchimp_api_key');
+
+        if ($mailchimpApiKey) {
+            try {
+                $list = MailchimpNewsletter::getApi()->get('lists');
+
+                $results = Arr::get($list, 'lists');
+
+                foreach ($results as $result) {
+                    $mailchimpContactList[$result['id']] = $result['name'];
+                }
+            } catch (Exception $exception) {
+                info('Caught exception: ' . $exception->getMessage());
+            }
+        }
+
+        $sendGridContactList = [];
+
+        $sendgridApiKey = setting('newsletter_sendgrid_api_key');
+        if ($sendgridApiKey) {
+            $sg = new SendGrid($sendgridApiKey);
+
+            try {
+                $list = $sg->client->marketing()->lists()->get();
+
+                $results = Arr::get(json_decode($list->body(), true), 'result');
+
+                foreach ($results as $result) {
+                    $sendGridContactList[$result['id']] = $result['name'];
+                }
+            } catch (Exception $exception) {
+                info('Caught exception: ' . $exception->getMessage());
+            }
+        }
+
+        return $data . view('plugins/newsletter::setting', compact('mailchimpContactList', 'sendGridContactList'))
+                ->render();
     }
 }

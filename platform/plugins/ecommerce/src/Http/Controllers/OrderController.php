@@ -1052,17 +1052,23 @@ class OrderController extends BaseController
     public function postSendOrderRecoverEmail($id, BaseHttpResponse $response)
     {
         $order = $this->orderRepository->findOrFail($id);
+
+        $email = $order->user->email ?: $order->address->email;
+
+        if (!$email) {
+            return $response
+                ->setError()
+                ->setMessage(trans('plugins/ecommerce::order.error_when_sending_email'));
+        }
+
         try {
             $mailer = EmailHandler::setModule(ECOMMERCE_MODULE_SCREEN_NAME);
-            if ($mailer->templateEnabled('order_recover')) {
-                $order->dont_show_order_info_in_product_list = true;
-                OrderHelper::setEmailVariables($order);
 
-                $mailer->sendUsingTemplate(
-                    'order_recover',
-                    $order->user->email ?: $order->address->email
-                );
-            }
+            $order->dont_show_order_info_in_product_list = true;
+            OrderHelper::setEmailVariables($order);
+
+            $mailer->sendUsingTemplate('order_recover', $email);
+
             return $response->setMessage(trans('plugins/ecommerce::order.sent_email_incomplete_order_success'));
         } catch (Exception $exception) {
             return $response

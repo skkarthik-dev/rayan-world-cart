@@ -17,6 +17,7 @@ use Botble\Ecommerce\Http\Requests\CustomerUpdateEmailRequest;
 use Botble\Ecommerce\Repositories\Interfaces\AddressInterface;
 use Botble\Ecommerce\Repositories\Interfaces\CustomerInterface;
 use Botble\Ecommerce\Tables\CustomerTable;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
@@ -64,7 +65,7 @@ class CustomerController extends BaseController
      */
     public function create(FormBuilder $formBuilder)
     {
-        page_title()->setTitle(trans('plugins/ecommerce::customers.create'));
+        page_title()->setTitle(trans('plugins/ecommerce::customer.create'));
 
         Assets::addScriptsDirectly('vendor/core/plugins/ecommerce/js/customer.js');
 
@@ -78,8 +79,12 @@ class CustomerController extends BaseController
      */
     public function store(CustomerCreateRequest $request, BaseHttpResponse $response)
     {
-        $request->merge(['password' => bcrypt($request->input('password'))]);
-        $customer = $this->customerRepository->createOrUpdate($request->input());
+        $customer = $this->customerRepository->getModel();
+        $customer->fill($request->input());
+        $customer->confirmed_at = now();
+        $customer->password = bcrypt($request->input('password'));
+        $customer->dob = Carbon::parse($request->input('dob'))->toDateString();
+        $customer = $this->customerRepository->createOrUpdate($customer);
 
         event(new CreatedContentEvent(CUSTOMER_MODULE_SCREEN_NAME, $request, $customer));
 
@@ -98,7 +103,8 @@ class CustomerController extends BaseController
         Assets::addScriptsDirectly('vendor/core/plugins/ecommerce/js/customer.js');
 
         $customer = $this->customerRepository->findOrFail($id);
-        page_title()->setTitle(trans('plugins/ecommerce::customers.edit', ['name' => $customer->name]));
+
+        page_title()->setTitle(trans('plugins/ecommerce::customer.edit', ['name' => $customer->name]));
 
         $customer->password = null;
 
@@ -113,14 +119,17 @@ class CustomerController extends BaseController
      */
     public function update($id, CustomerEditRequest $request, BaseHttpResponse $response)
     {
+        $customer = $this->customerRepository->findOrFail($id);
+
+        $customer->fill($request->except('password'));
+
         if ($request->input('is_change_password') == 1) {
-            $request->merge(['password' => bcrypt($request->input('password'))]);
-            $data = $request->input();
-        } else {
-            $data = $request->except('password');
+            $customer->password = bcrypt($request->input('password'));
         }
 
-        $customer = $this->customerRepository->createOrUpdate($data, ['id' => $id]);
+        $customer->dob = Carbon::parse($request->input('dob'))->toDateString();
+
+        $customer = $this->customerRepository->createOrUpdate($customer);
 
         event(new UpdatedContentEvent(CUSTOMER_MODULE_SCREEN_NAME, $request, $customer));
 

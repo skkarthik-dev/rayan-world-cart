@@ -28,6 +28,13 @@
                                 {{ trans('plugins/marketplace::marketplace.settings.check_valid_signature') }}
                             </label>
                         </div>
+                        <div class="form-group">
+                            <input type="hidden" name="{{ get_marketplace_setting_key('verify_vendor') }}" value="0">
+                            <label>
+                                <input type="checkbox" class="hrv-checkbox" value="1" @if (get_marketplace_setting('verify_vendor', 1)) checked @endif name="{{ get_marketplace_setting_key('verify_vendor') }}">
+                                {{ trans('plugins/marketplace::marketplace.settings.verify_vendor') }}
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>

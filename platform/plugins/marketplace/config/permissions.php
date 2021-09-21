@@ -41,4 +41,13 @@ return [
         'parent_flag' => 'marketplace.withdrawal.index',
     ],
 
+    [
+        'name' => 'Unverified vendors',
+        'flag' => 'marketplace.unverified-vendors.index',
+    ],
+    [
+        'name'        => 'Edit',
+        'flag'        => 'marketplace.unverified-vendors.edit',
+        'parent_flag' => 'marketplace.unverified-vendors.index',
+    ],
 ];

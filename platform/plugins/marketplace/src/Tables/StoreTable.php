@@ -54,6 +54,7 @@ class StoreTable extends TableAbstract
                 if (!Auth::user()->hasPermission('marketplace.store.edit')) {
                     return $item->name;
                 }
+
                 return Html::link(route('marketplace.store.edit', $item->id), $item->name);
             })
             ->editColumn('logo', function ($item) {

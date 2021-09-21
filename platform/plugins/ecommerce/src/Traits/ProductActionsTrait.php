@@ -115,7 +115,6 @@ trait ProductActionsTrait
 
                 $productRelatedToVariation->name = $product->name;
                 $productRelatedToVariation->status = $product->status;
-                $productRelatedToVariation->category_id = $product->category_id;
                 $productRelatedToVariation->brand_id = $product->brand_id;
                 $productRelatedToVariation->is_variation = 1;
 

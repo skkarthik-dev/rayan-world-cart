@@ -7,8 +7,14 @@
                 <button class="select-date-range-btn date-range-picker"
                         data-format-value="{{ trans('plugins/ecommerce::reports.date_range_format_value', ['from' => '__from__', 'to' => '__to__']) }}"
                         data-format="{{ Str::upper(config('core.base.general.date_format.js.date')) }}"
-                        data-href="{{ route('ecommerce.report.index') }}">
-                    <i class="fa fa-calendar"></i> <span>{{ trans('plugins/ecommerce::reports.select_range') }}</span>
+                        data-href="{{ route('ecommerce.report.index') }}"
+                        data-start-date="{{ $count['startDate'] }}"
+                        data-end-date="{{ $count['endDate'] }}">
+                    <i class="fa fa-calendar"></i>
+                    <span><span>{{ trans('plugins/ecommerce::reports.date_range_format_value', [
+                        'from' => $count['startDate']->format('Y-m-d'),
+                        'to'   => $count['endDate']->format('Y-m-d')
+                    ]) }}</span></span>
                 </button>
             </div>
             <div class="mx-0 bg-white row report-chart-content pt-3" id="report-chart">

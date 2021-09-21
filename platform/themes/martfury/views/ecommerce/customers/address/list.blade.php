@@ -14,7 +14,7 @@
     </div>
     <div class="ps-section__content">
         <div class="table-responsive">
-            <table class="table ps-table--whishlist">
+            <table class="table ps-table--wishlist">
                 <thead>
                 <tr>
                     <th>{{ __('Address') }}</th>

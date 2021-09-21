@@ -37,10 +37,10 @@ class PageSeeder extends BaseSeeder
                     Html::tag('div',
                         '[theme-ads key_1="Q9YDUIC9HSWS" key_2="IZ6WU8KUALYE"][/theme-ads]') .
                     Html::tag('div', '[product-collections title="Exclusive Products"][/product-collections]') .
-                    Html::tag('div', '[product-category-products category_id="17"][/product-category-products]') .
+                    Html::tag('div', '[product-category-products category_id="18"][/product-category-products]') .
                     Html::tag('div',
                         '[download-app title="Download Martfury App Now!" subtitle="Shopping fastly and easily more with our app. Get a link to download the app on your phone." screenshot="general/app.png" android_app_url="https://www.appstore.com" ios_app_url="https://play.google.com/store"][/download-app]') .
-                    Html::tag('div', '[product-category-products category_id="15"][/product-category-products]') .
+                    Html::tag('div', '[product-category-products category_id="23"][/product-category-products]') .
                     Html::tag('div',
                         '[newsletter-form title="Join Our Newsletter Now" subtitle="Subscribe to get information about products and coupons"][/newsletter-form]')
                 ,

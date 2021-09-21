@@ -46,7 +46,7 @@ class HandleApplyPromotionsService
      */
     public function execute($token = null, array $data = [], $prefix = '')
     {
-        if (is_null($this->promotions)) {
+        if (empty($this->promotions)) {
             $promotions = $this->discountRepository->getAvailablePromotions();
             $this->promotions = $promotions;
         } else {

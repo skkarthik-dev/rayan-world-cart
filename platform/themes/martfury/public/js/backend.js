@@ -3,6 +3,12 @@ var __webpack_exports__ = {};
 /*!*******************************************************!*\
   !*** ./platform/themes/martfury/assets/js/backend.js ***!
   \*******************************************************/
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 (function ($) {
   'use strict';
 
@@ -110,6 +116,7 @@ var __webpack_exports__ = {};
     }
   };
 
+  var isRTL = $('body').prop('dir') === 'rtl';
   $(document).ready(function () {
     window.onBeforeChangeSwatches = function (data) {
       $('.add-to-cart-form .error-message').hide();
@@ -188,7 +195,7 @@ var __webpack_exports__ = {};
             slider.slick({
               slidesToShow: slider.data('item'),
               slidesToScroll: 1,
-              rtl: $('body').prop('dir') === 'rtl',
+              rtl: isRTL,
               infinite: false,
               arrows: slider.data('arrow'),
               focusOnSelect: true,
@@ -208,13 +215,13 @@ var __webpack_exports__ = {};
               primary.slick('unslick');
               var _imageHtml = '';
               res.data.image_with_sizes.origin.forEach(function (item) {
-                _imageHtml += '<div class="item"><a href="' + item + '"><img src="' + item + '" alt="image"/></a></div>';
+                _imageHtml += '<div class="item"><a href="' + item + '"><img src="' + item + '" alt="' + res.data.name + '"/></a></div>';
               });
               primary.html(_imageHtml);
               primary.slick({
                 slidesToShow: 1,
                 slidesToScroll: 1,
-                rtl: $('body').prop('dir') === 'rtl',
+                rtl: isRTL,
                 asNavFor: '.ps-product__variants',
                 fade: true,
                 dots: false,
@@ -229,13 +236,13 @@ var __webpack_exports__ = {};
               second.slick('unslick');
               var thumbHtml = '';
               res.data.image_with_sizes.thumb.forEach(function (item) {
-                thumbHtml += '<div class="item"><img src="' + item + '" alt="image"/></div>';
+                thumbHtml += '<div class="item"><img src="' + item + '" alt="' + res.data.name + '"/></div>';
               });
               second.html(thumbHtml);
               second.slick({
                 slidesToShow: second.data('item'),
                 slidesToScroll: 1,
-                rtl: $('body').prop('dir') === 'rtl',
+                rtl: isRTL,
                 infinite: false,
                 arrows: second.data('arrow'),
                 focusOnSelect: true,
@@ -388,10 +395,7 @@ var __webpack_exports__ = {};
           handleError(res, _self.closest('form'));
         }
       });
-    }); // $(document).on('change', '.switch-currency', function () {
-    //     $(this).closest('form').submit();
-    // });
-
+    });
     var $layoutShop = $('.ps-layout--shop');
 
     if ($layoutShop.length > 0) {
@@ -982,25 +986,132 @@ var __webpack_exports__ = {};
     $(document).on('change', '.submit-form-on-change', function () {
       $(this).closest('form').submit();
     });
+    var imagesReviewBuffer = [];
+
+    var setImagesFormReview = function setImagesFormReview(input) {
+      var dT = new ClipboardEvent('').clipboardData || // Firefox < 62 workaround exploiting https://bugzilla.mozilla.org/show_bug.cgi?id=1422655
+      new DataTransfer(); // specs compliant (as of March 2018 only Chrome)
+
+      var _iterator = _createForOfIteratorHelper(imagesReviewBuffer),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var file = _step.value;
+          dT.items.add(file);
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+
+      input.files = dT.files;
+      loadPreviewImage(input);
+    };
+
+    var loadPreviewImage = function loadPreviewImage(input) {
+      var $uploadText = $('.image-upload__text');
+      var maxFiles = $(input).data('max-files');
+      var filesAmount = input.files.length;
+
+      if (maxFiles) {
+        if (filesAmount >= maxFiles) {
+          $uploadText.closest('.image-upload__uploader-container').addClass('d-none');
+        } else {
+          $uploadText.closest('.image-upload__uploader-container').removeClass('d-none');
+        }
+
+        $uploadText.text(filesAmount + '/' + maxFiles);
+      } else {
+        $uploadText.text(filesAmount);
+      }
+
+      var viewerList = $('.image-viewer__list');
+      var $template = $('#review-image-template').html();
+      viewerList.addClass('is-loading');
+      viewerList.find('.image-viewer__item').remove();
+
+      if (filesAmount) {
+        for (var i = filesAmount - 1; i >= 0; i--) {
+          viewerList.prepend($template.replace('__id__', i));
+        }
+
+        var _loop = function _loop(j) {
+          var reader = new FileReader();
+
+          reader.onload = function (event) {
+            viewerList.find('.image-viewer__item[data-id=' + j + ']').find('img').attr('src', event.target.result);
+          };
+
+          reader.readAsDataURL(input.files[j]);
+        };
+
+        for (var j = filesAmount - 1; j >= 0; j--) {
+          _loop(j);
+        }
+      }
+
+      viewerList.removeClass('is-loading');
+    };
+
+    $(document).on('change', '.form-review-product input[type=file]', function (event) {
+      event.preventDefault();
+      var input = this;
+      var $input = $(input);
+      var maxSize = $input.data('max-size');
+      Object.keys(input.files).map(function (i) {
+        if (maxSize && input.files[i].size / 1024 > maxSize) {
+          var message = $input.data('max-size-message').replace('__attribute__', input.files[i].name).replace('__max__', maxSize);
+          window.showAlert('alert-danger', message);
+        } else {
+          imagesReviewBuffer.push(input.files[i]);
+        }
+      });
+      var filesAmount = imagesReviewBuffer.length;
+      var maxFiles = $input.data('max-files');
+
+      if (maxFiles && filesAmount > maxFiles) {
+        imagesReviewBuffer.splice(filesAmount - maxFiles - 1, filesAmount - maxFiles);
+      }
+
+      setImagesFormReview(input);
+    });
+    $(document).on('click', '.form-review-product .image-viewer__icon-remove', function (event) {
+      event.preventDefault();
+      var $this = $(event.currentTarget);
+      var id = $this.closest('.image-viewer__item').data('id');
+      imagesReviewBuffer.splice(id, 1);
+      var input = $('.form-review-product input[type=file]')[0];
+      setImagesFormReview(input);
+    });
+
+    if (sessionStorage.reloadReviewsTab) {
+      $('.ps-tab-list li a[href="#tab-reviews"]').trigger('click');
+      sessionStorage.reloadReviewsTab = false;
+    }
+
     $(document).on('click', '.form-review-product button[type=submit]', function (event) {
       var _this = this;
 
       event.preventDefault();
       event.stopPropagation();
       $(this).prop('disabled', true).addClass('btn-disabled').addClass('button-loading');
+      var $form = $(this).closest('form');
       $.ajax({
         type: 'POST',
         cache: false,
-        url: $(this).closest('form').prop('action'),
-        data: new FormData($(this).closest('form')[0]),
+        url: $form.prop('action'),
+        data: new FormData($form[0]),
         contentType: false,
         processData: false,
         success: function success(res) {
           if (!res.error) {
-            $(_this).closest('form').find('select').val(0);
-            $(_this).closest('form').find('textarea').val('');
+            $form.find('select').val(0);
+            $form.find('textarea').val('');
             showSuccess(res.message);
             setTimeout(function () {
+              sessionStorage.reloadReviewsTab = true;
               window.location.reload();
             }, 1500);
           } else {
@@ -1011,7 +1122,7 @@ var __webpack_exports__ = {};
         },
         error: function error(res) {
           $(_this).prop('disabled', false).removeClass('btn-disabled').removeClass('button-loading');
-          handleError(res, $(_this).closest('form'));
+          handleError(res, $form);
         }
       });
     });
@@ -1193,7 +1304,7 @@ var __webpack_exports__ = {};
             $('.ps-product--quickview .ps-product__images').slick({
               slidesToShow: 1,
               slidesToScroll: 1,
-              rtl: $('body').prop('dir') === 'rtl',
+              rtl: isRTL,
               fade: true,
               dots: false,
               arrows: true,

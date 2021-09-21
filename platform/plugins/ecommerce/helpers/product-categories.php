@@ -20,9 +20,7 @@ if (!function_exists('get_product_categories')) {
         $categories = app(ProductCategoryInterface::class)
             ->getProductCategories($conditions, $with, $withCount, $parentOnly);
 
-        $categories = sort_item_with_children($categories);
-
-        return $categories;
+        return sort_item_with_children($categories);
     }
 }
 
@@ -36,7 +34,7 @@ if (!function_exists('get_product_categories_with_children')) {
     {
         $params = [
             'order_by' => [
-                'order' => 'ASC',
+                'order'      => 'ASC',
                 'created_at' => 'DESC',
             ],
         ];
@@ -47,12 +45,9 @@ if (!function_exists('get_product_categories_with_children')) {
 
         $categories = app(ProductCategoryInterface::class)->advancedGet($params);
 
-        /**
-         * @var SortItemsWithChildrenHelper $sortHelper
-         */
-        $sortHelper = app(SortItemsWithChildrenHelper::class);
-        $sortHelper->setChildrenProperty('child_cats')->setItems($categories);
-
-        return $sortHelper->sort();
+        return app(SortItemsWithChildrenHelper::class)
+            ->setChildrenProperty('child_cats')
+            ->setItems($categories)
+            ->sort();
     }
 }

@@ -27,4 +27,14 @@ $(document).ready(() => {
             }
         });
     });
+
+    const $reviewCheckbox = $('input[name="review_enabled"]');
+    const $reviewContentContainer = $('.review-settings-container');
+    $reviewCheckbox.on('change', function() {
+        if ($(this).val() == '1') {
+            $reviewContentContainer.removeClass('d-none');
+        } else {
+            $reviewContentContainer.addClass('d-none');
+        }
+    });
 });

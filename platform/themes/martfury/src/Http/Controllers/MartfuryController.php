@@ -58,8 +58,6 @@ class MartfuryController extends PublicController
                 'variations',
                 'productCollections',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
             ],
             'withCount'   => $withCount,
         ]);
@@ -83,7 +81,7 @@ class MartfuryController extends PublicController
             return $response->setNextUrl(route('public.index'));
         }
 
-        $categories = get_featured_product_categories();
+        $categories = get_featured_product_categories(['take' => null]);
 
         return $response->setData(ProductCategoryResource::collection($categories));
     }
@@ -116,8 +114,6 @@ class MartfuryController extends PublicController
                 'variations',
                 'productCollections',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
             ],
             'withCount' => $withCount,
         ]);
@@ -176,8 +172,6 @@ class MartfuryController extends PublicController
                 'variations',
                 'productCollections',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
             ],
             'withCount' => $withCount,
         ]);
@@ -215,8 +209,6 @@ class MartfuryController extends PublicController
             'variations',
             'productCollections',
             'variationAttributeSwatchesForProductList',
-            'promotions',
-            'latestFlashSales',
         ], $withCount);
 
         $data = [];
@@ -255,8 +247,6 @@ class MartfuryController extends PublicController
                 'variations',
                 'productCollections',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
             ],
             'withCount' => $withCount,
         ]);
@@ -396,31 +386,73 @@ class MartfuryController extends PublicController
      * @param Request $request
      * @param BaseHttpResponse $response
      * @param ReviewInterface $reviewRepository
+     * @param ProductInterface $productRepository
      * @return BaseHttpResponse
      */
     public function ajaxGetProductReviews(
         $id,
         Request $request,
         BaseHttpResponse $response,
-        ReviewInterface $reviewRepository
+        ReviewInterface $reviewRepository,
+        ProductInterface $productRepository
     ) {
         if (!$request->ajax() || !$request->wantsJson()) {
             return $response->setNextUrl(route('public.index'));
         }
 
+        $product = $productRepository->getFirstBy([
+            'id'           => $id,
+            'status'       => BaseStatusEnum::PUBLISHED,
+            'is_variation' => 0,
+        ]);
+
+        if (!$product) {
+            abort(404);
+        }
+
+        $condition = [
+            'status'     => BaseStatusEnum::PUBLISHED,
+            'product_id' => $id,
+        ];
+
+        $star = (int)$request->input('star');
+        if ($star && $star >= 1 && $star <= 5) {
+            $condition['star'] = $star;
+        } else {
+            $star = 0;
+        }
+
         $reviews = $reviewRepository->advancedGet([
-            'condition' => [
-                'status'     => BaseStatusEnum::PUBLISHED,
-                'product_id' => $id,
-            ],
+            'condition' => $condition,
             'order_by'  => ['created_at' => 'desc'],
             'paginate'  => [
                 'per_page'      => (int)$request->input('per_page', 10),
                 'current_paged' => (int)$request->input('page', 1),
             ],
+            'with'      => ['user'],
         ]);
 
-        return $response->setData(ReviewResource::collection($reviews))->toApiResponse();
+        $reviews
+            ->onEachSide(1)
+            ->appends($request->only(['star']));
+
+        if ($star) {
+            $message = __(':total review(s) ":star star" for ":product"', [
+                'total'   => $reviews->total(),
+                'product' => $product->name,
+                'star'    => $star,
+            ]);
+        } else {
+            $message = __(':total review(s) for ":product"', [
+                'total'   => $reviews->total(),
+                'product' => $product->name,
+            ]);
+        }
+
+        return $response
+            ->setData(ReviewResource::collection($reviews))
+            ->setMessage($message)
+            ->toApiResponse();
     }
 
     /**
@@ -441,8 +473,6 @@ class MartfuryController extends PublicController
             'variations',
             'productCollections',
             'variationAttributeSwatchesForProductList',
-            'promotions',
-            'latestFlashSales',
         ];
 
         $withCount = [];
@@ -482,19 +512,29 @@ class MartfuryController extends PublicController
     }
 
     /**
+     * @param Request $request
      * @param BaseHttpResponse $response
+     * @param ProductInterface $productRepository
+     * @param ProductCategoryInterface $productCategoryRepository
      * @return BaseHttpResponse
      */
     public function ajaxGetProductsByCategoryId(
         Request $request,
         BaseHttpResponse $response,
-        ProductInterface $productRepository
+        ProductInterface $productRepository,
+        ProductCategoryInterface $productCategoryRepository
     ) {
         if (!$request->ajax() || !$request->wantsJson()) {
             return $response->setNextUrl(route('public.index'));
         }
 
         $categoryId = $request->input('category_id');
+
+        if (!$categoryId) {
+            return $response;
+        }
+
+        $category = $productCategoryRepository->findById($categoryId);
 
         if (!$categoryId) {
             return $response;
@@ -513,7 +553,7 @@ class MartfuryController extends PublicController
         $products = $productRepository->getProductsByCategories([
             'categories' => [
                 'by'       => 'id',
-                'value_in' => [$categoryId],
+                'value_in' => $category->getChildrenIds($category, [$category->id]),
             ],
             'take'       => (int) $request->input('limit', 10),
             'withCount'  => $withCount,

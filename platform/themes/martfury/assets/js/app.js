@@ -41,7 +41,7 @@ Vue.component('flash-sale-products-component', FlashSaleProductsComponent);
  * This let us access the `__` method for localization in VueJS templates
  * ({{ __('key') }})
  */
-Vue.prototype.__ = (key) => {
+Vue.prototype.__ = key => {
     return window.trans[key] !== 'undefined' ? window.trans[key] : key;
 };
 

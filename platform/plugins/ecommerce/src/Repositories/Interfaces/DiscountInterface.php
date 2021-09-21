@@ -10,9 +10,11 @@ use Illuminate\Support\Collection;
 interface DiscountInterface extends RepositoryInterface
 {
     /**
+     * @param array $with
+     * @param bool $forProductSingle
      * @return Collection
      */
-    public function getAvailablePromotions();
+    public function getAvailablePromotions(array $with = [], bool $forProductSingle = false);
 
     /**
      * @param array $productIds

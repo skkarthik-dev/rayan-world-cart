@@ -302,19 +302,6 @@
             right: 0;
             width: 32px;
             height: 32px;
-
-            i {
-                @include center();
-
-                &:before {
-                    content: "\e93a";
-                    font-family: 'Linearicons' !important;
-                }
-            }
-
-            &:before, &:after {
-                display: none;
-            }
         }
 
         .sub-menu {

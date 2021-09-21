@@ -21,8 +21,10 @@ return [
         'description'       => 'Settings for newsletter',
         'mailchimp_api_key' => 'Mailchimp API Key',
         'mailchimp_list_id' => 'Mailchimp List ID',
+        'mailchimp_list' => 'Mailchimp List',
         'sendgrid_api_key'  => 'Sendgrid API Key',
         'sendgrid_list_id'  => 'Sendgrid List ID',
+        'sendgrid_list'     => 'Sendgrid List',
     ],
     'statuses' => [
         'subscribed'   => 'Subscribed',

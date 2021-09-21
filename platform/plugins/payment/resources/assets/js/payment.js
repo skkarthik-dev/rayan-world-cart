@@ -2,7 +2,7 @@
 
 var BPayment = BPayment || {};
 
-BPayment.init = function () {
+BPayment.initResources = function () {
     let paymentMethod = $(document).find('input[name=payment_method]').first();
 
     if (paymentMethod.length) {
@@ -22,6 +22,10 @@ BPayment.init = function () {
             },
         });
     }
+}
+
+BPayment.init = function () {
+    BPayment.initResources();
 
     $(document).on('change', '.js_payment_method', function () {
         $('.payment_collapse_wrap').removeClass('collapse').removeClass('show').removeClass('active');
@@ -60,4 +64,8 @@ BPayment.init = function () {
 
 $(document).ready(function () {
     BPayment.init();
+
+    document.addEventListener('payment-form-reloaded', function() {
+        BPayment.initResources();
+    });
 });

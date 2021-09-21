@@ -4,7 +4,6 @@
         @foreach ($groups as $language)
             @if (!in_array($language['locale'], [$group['locale']]))
                 <span>
-                    {!! language_flag($language['flag'], $language['name']) !!}
                     <a href="{{ route('translations.theme-translations', $language['locale'] == 'en' ? [] : ['ref_lang' => $language['locale']]) }}">{{ $language['name'] }}</a>
                 </span>&nbsp;
             @endif

@@ -3,6 +3,7 @@
 namespace Botble\Theme;
 
 use Botble\Base\Supports\Helper;
+use Botble\Setting\Models\Setting;
 use Botble\Theme\Contracts\Theme as ThemeContract;
 use Botble\Theme\Exceptions\UnknownLayoutFileException;
 use Botble\Theme\Exceptions\UnknownPartialFileException;
@@ -386,13 +387,7 @@ class Theme implements ThemeContract
             return $theme;
         }
 
-        $theme = Arr::first(scan_folder(theme_path()));
-
-        if (Helper::isConnectedDatabase()) {
-            setting()->set('theme', $theme)->save();
-        }
-
-        return $theme;
+        return Arr::first(scan_folder(theme_path()));
     }
 
     /**

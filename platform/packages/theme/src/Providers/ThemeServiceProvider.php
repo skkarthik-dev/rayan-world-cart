@@ -11,14 +11,13 @@ use Botble\Theme\Commands\ThemeRemoveCommand;
 use Botble\Theme\Commands\ThemeRenameCommand;
 use Botble\Theme\Contracts\Theme as ThemeContract;
 use Botble\Theme\Http\Middleware\AdminBarMiddleware;
+use Botble\Theme\Supports\ThemeSupport;
 use Botble\Theme\Theme;
 use File;
-use Html;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Theme as ThemeFacade;
 
 class ThemeServiceProvider extends ServiceProvider
@@ -53,7 +52,6 @@ class ThemeServiceProvider extends ServiceProvider
             ->loadAndPublishViews()
             ->loadAndPublishTranslations()
             ->loadRoutes(['web'])
-            ->loadMigrations()
             ->publishAssets();
 
         Event::listen(RouteMatched::class, function () {
@@ -125,49 +123,19 @@ class ThemeServiceProvider extends ServiceProvider
             if (config('packages.theme.general.enable_custom_js')) {
                 if (setting('custom_header_js')) {
                     add_filter(THEME_FRONT_HEADER, function ($html) {
-                        $headerJS = setting('custom_header_js');
-
-                        if (empty($headerJS)) {
-                            return $html;
-                        }
-
-                        if (!Str::contains($headerJS, '<script') || !Str::contains($headerJS, '</script>')) {
-                            $headerJS = Html::tag('script', $headerJS);
-                        }
-
-                        return $html . $headerJS;
+                        return $html . ThemeSupport::getCustomJS('header');
                     }, 15);
                 }
 
                 if (setting('custom_body_js')) {
                     add_filter(THEME_FRONT_BODY, function ($html) {
-                        $bodyJS = setting('custom_body_js');
-
-                        if (empty($bodyJS)) {
-                            return $html;
-                        }
-
-                        if (!Str::contains($bodyJS, '<script') || !Str::contains($bodyJS, '</script>')) {
-                            $bodyJS = Html::tag('script', $bodyJS);
-                        }
-
-                        return $html . $bodyJS;
+                        return $html . ThemeSupport::getCustomJS('body');
                     }, 15);
                 }
 
                 if (setting('custom_footer_js')) {
                     add_filter(THEME_FRONT_FOOTER, function ($html) {
-                        $footerJS = setting('custom_footer_js');
-
-                        if (empty($footerJS)) {
-                            return $html;
-                        }
-
-                        if (!Str::contains($footerJS, '<script') || !Str::contains($footerJS, '</script>')) {
-                            $footerJS = Html::tag('script', $footerJS);
-                        }
-
-                        return $html . $footerJS;
+                        return $html . ThemeSupport::getCustomJS('footer');
                     }, 15);
                 }
             }

@@ -11,7 +11,7 @@ class DiscountRepository extends RepositoriesAbstract implements DiscountInterfa
     /**
      * {@inheritDoc}
      */
-    public function getAvailablePromotions()
+    public function getAvailablePromotions(array $with = [], bool $forProductSingle = false)
     {
         $data = $this->model
             ->where('type', 'promotion')
@@ -24,21 +24,32 @@ class DiscountRepository extends RepositoriesAbstract implements DiscountInterfa
                     ->whereNull('end_date')
                     ->orWhere('end_date', '>=', now());
             })
-            ->where(function ($query) {
+            ->where(function ($query) use ($forProductSingle) {
                 /**
                  * @var Builder $query
                  */
                 return $query
                     ->whereIn('target', ['all-orders', 'amount-minimum-order'])
-                    ->orWhere(function ($sub) {
+                    ->orWhere(function ($sub) use ($forProductSingle) {
+
+                        $compare = '>';
+
+                        if ($forProductSingle) {
+                            $compare = '=';
+                        }
+
                         /**
                          * @var Builder $sub
                          */
                         return $sub
                             ->whereIn('target', ['customer', 'group-products', 'specific-product', 'product-variant'])
-                            ->where('product_quantity', '>', 1);
+                            ->where('product_quantity', $compare, 1);
                     });
             });
+
+        if ($with) {
+            $data = $data->with($with);
+        }
 
         return $this->applyBeforeExecuteQuery($data)->get();
     }
@@ -46,16 +57,12 @@ class DiscountRepository extends RepositoriesAbstract implements DiscountInterfa
     /**
      * {@inheritDoc}
      */
-    public function getProductPriceBasedOnPromotion(array $productIds = [], array $productCollections = [])
+    public function getProductPriceBasedOnPromotion(array $productIds = [], array $productCollectionIds = [])
     {
         $data = $this->model
             ->where('type', 'promotion')
             ->where('start_date', '<=', now())
-            ->leftJoin('ec_discount_products', 'ec_discounts.id', '=', 'ec_discount_products.discount_id')
-            ->leftJoin('ec_discount_product_collections', 'ec_discounts.id', '=',
-                'ec_discount_product_collections.discount_id')
-            ->leftJoin('ec_discount_customers', 'ec_discounts.id', '=', 'ec_discount_customers.discount_id')
-            ->where(function ($query) use ($productIds, $productCollections) {
+            ->where(function ($query) use ($productIds, $productCollectionIds) {
                 /**
                  * @var Builder $query
                  */
@@ -65,33 +72,32 @@ class DiscountRepository extends RepositoriesAbstract implements DiscountInterfa
                          * @var Builder $sub
                          */
                         return $sub
-                            ->where(function ($subSub) {
-                                /**
-                                 * @var Builder $subSub
-                                 */
-                                return $subSub
-                                    ->where('target', 'specific-product')
-                                    ->orWhere('target', 'product-variant');
-                            })
-                            ->whereIn('ec_discount_products.product_id', $productIds);
+                            ->whereIn('target', ['specific-product', 'product-variant'])
+                            ->whereHas('products', function ($whereHas) use ($productIds) {
+                                return $whereHas->whereIn('ec_discount_products.product_id', $productIds);
+                            });
                     })
-                    ->orWhere(function ($sub) use ($productCollections) {
+                    ->orWhere(function ($sub) use ($productCollectionIds) {
                         /**
                          * @var Builder $sub
                          */
                         return $sub
                             ->where('target', 'group-products')
-                            ->whereIn('ec_discount_product_collections.product_collection_id', $productCollections);
+                            ->whereHas('productCollections', function ($whereHas) use ($productCollectionIds) {
+                                return $whereHas->whereIn('ec_discount_product_collections.product_collection_id', $productCollectionIds);
+                            });
                     })
                     ->orWhere(function ($sub) {
-                        $customerId = auth('customer')->check() ? auth('customer')->id() : -1;
-
                         /**
                          * @var Builder $sub
                          */
                         return $sub
                             ->where('target', 'customer')
-                            ->where('ec_discount_customers.customer_id', $customerId);
+                            ->whereHas('customers', function ($whereHas) {
+                                $customerId = auth('customer')->check() ? auth('customer')->id() : -1;
+
+                                return $whereHas->where('ec_discount_customers.customer_id', $customerId);
+                            });
                     });
             })
             ->where(function ($query) {

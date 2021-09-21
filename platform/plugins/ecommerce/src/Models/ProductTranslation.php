@@ -11,7 +11,7 @@ class ProductTranslation extends BaseModel
      *
      * @var string
      */
-    protected $table = "ec_products_translations";
+    protected $table = 'ec_products_translations';
 
     /**
      * @var array

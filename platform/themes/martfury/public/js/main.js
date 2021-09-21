@@ -388,8 +388,8 @@ var __webpack_exports__ = {};
       $(this).closest('li').addClass('active');
       $(target).addClass('active');
       $(target).siblings('.ps-tab').removeClass('active');
-      $(target).closest('.ps-tab-root').find('li').removeClass('active');
-      $(target).closest('.ps-tab-root').find('li a[href="' + target + '"]').closest('li').addClass('active');
+      $('.ps-tab-list li').removeClass('active');
+      $('.ps-tab-list li a[href="' + target + '"]').closest('li').addClass('active');
       $('html, body').animate({
         scrollTop: $(target).offset().top - $('.header--product .navigation').height() - 165 + 'px'
       }, 800);

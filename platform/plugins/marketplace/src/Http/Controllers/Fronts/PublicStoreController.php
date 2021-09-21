@@ -4,7 +4,6 @@ namespace Botble\Marketplace\Http\Controllers\Fronts;
 
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Http\Responses\BaseHttpResponse;
-use Botble\Ecommerce\Models\Product;
 use Botble\Ecommerce\Repositories\Interfaces\ReviewInterface;
 use Botble\Ecommerce\Services\Products\GetProductService;
 use Botble\Marketplace\Http\Requests\CheckStoreUrlRequest;
@@ -53,7 +52,9 @@ class PublicStoreController
      */
     public function getStores(Request $request)
     {
-        Theme::breadcrumb()->add(__('Home'), route('public.index'))->add(__('Stores'), route('public.stores'));
+        Theme::breadcrumb()->add(__('Home'), route('public.index'))
+            ->add(__('Stores'), route('public.stores'));
+
         SeoHelper::setTitle(__('Stores'))->setDescription(__('Stores'));
 
         $stores = $this->storeRepository->advancedGet([
@@ -94,7 +95,7 @@ class PublicStoreController
             'mp_stores.status' => BaseStatusEnum::PUBLISHED,
         ];
 
-        if (Auth::check() && request()->input('preview')) {
+        if (Auth::check() && $request->input('preview')) {
             Arr::forget($condition, 'status');
         }
 
@@ -120,18 +121,16 @@ class PublicStoreController
 
         SeoHelper::setSeoOpenGraph($meta);
 
-        Theme::breadcrumb()->add(__('Home'), route('public.index'))
-            ->add(__('Stores'), route('public.stores'));
-
-        Theme::breadcrumb()->add($store->name, $store->url);
+        Theme::breadcrumb()
+            ->add(__('Home'), route('public.index'))
+            ->add(__('Stores'), route('public.stores'))
+            ->add($store->name, $store->url);
 
         $with = [
             'slugable',
             'variations',
             'productLabels',
             'variationAttributeSwatchesForProductList',
-            'promotions',
-            'latestFlashSales',
         ];
 
         if (is_plugin_active('marketplace')) {

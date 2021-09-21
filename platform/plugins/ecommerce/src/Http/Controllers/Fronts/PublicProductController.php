@@ -116,8 +116,7 @@ class PublicProductController
             'variations',
             'productLabels',
             'variationAttributeSwatchesForProductList',
-            'promotions',
-            'latestFlashSales',
+            'productCollections',
         ];
 
         if (is_plugin_active('marketplace')) {
@@ -253,8 +252,15 @@ class PublicProductController
             ->add(__('Home'), route('public.index'))
             ->add(__('Products'), route('public.products'));
 
-        $category = $product->categories->first();
+        $category = $product->categories->sortByDesc('id')->first();
+
         if ($category) {
+            if ($category->parents->count()) {
+                foreach ($category->parents->reverse() as $parentCategory) {
+                    Theme::breadcrumb()->add($parentCategory->name, $parentCategory->url);
+                }
+            }
+
             Theme::breadcrumb()->add($category->name, $category->url);
         }
 
@@ -377,8 +383,7 @@ class PublicProductController
                 'variations',
                 'productLabels',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
+                'productCollections',
             ],
             'withCount'   => $withCount,
         ]);
@@ -477,15 +482,16 @@ class PublicProductController
             'variations',
             'productLabels',
             'variationAttributeSwatchesForProductList',
-            'promotions',
-            'latestFlashSales',
+            'productCollections',
         ];
 
         if (is_plugin_active('marketplace')) {
             $with = array_merge($with, ['store', 'store.slugable']);
         }
 
-        $products = $getProductService->getProduct($request, $category->id, null, $with, $withCount);
+        $request->merge(['categories' => $category->getChildrenIds($category, [$category->id])]);
+
+        $products = $getProductService->getProduct($request, null, null, $with, $withCount);
 
         if ($request->ajax()) {
             $total = $products->total();
@@ -517,8 +523,15 @@ class PublicProductController
 
         Theme::breadcrumb()
             ->add(__('Home'), route('public.index'))
-            ->add(__('Products'), route('public.products'))
-            ->add($category->name, $category->url);
+            ->add(__('Products'), route('public.products'));
+
+        if ($category->parents->count()) {
+            foreach ($category->parents->reverse() as $parentCategory) {
+                Theme::breadcrumb()->add($parentCategory->name, $parentCategory->url);
+            }
+        }
+
+        Theme::breadcrumb()->add($category->name, $category->url);
 
         do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, PRODUCT_CATEGORY_MODULE_SCREEN_NAME, $category);
 
@@ -689,8 +702,9 @@ class PublicProductController
      */
     public function postCreateReview(ReviewRequest $request, BaseHttpResponse $response)
     {
+        $customerId = auth('customer')->id();
         $exists = $this->reviewRepository->count([
-            'customer_id' => auth('customer')->id(),
+            'customer_id' => $customerId,
             'product_id'  => $request->input('product_id'),
         ]);
 
@@ -700,7 +714,22 @@ class PublicProductController
                 ->setMessage(__('You have reviewed this product already!'));
         }
 
-        $request->merge(['customer_id' => auth('customer')->id()]);
+        $results = [];
+        if ($request->hasFile('images')) {
+            $images = (array) $request->file('images', []);
+            foreach($images as $image) {
+                $result = RvMedia::handleUpload($image, 0, 'reviews');
+                if ($result['error'] != false) {
+                    return $response->setError()->setMessage($result['message']);
+                }
+                $results[] = $result;
+            }
+        }
+
+        $request->merge([
+            'customer_id' => $customerId,
+            'images'      => collect($results)->pluck('data.url')->toArray(),
+        ]);
 
         $this->reviewRepository->createOrUpdate($request->input());
 
@@ -774,8 +803,7 @@ class PublicProductController
                 'variations',
                 'productLabels',
                 'variationAttributeSwatchesForProductList',
-                'promotions',
-                'latestFlashSales',
+                'productCollections',
             ],
             $withCount
         );

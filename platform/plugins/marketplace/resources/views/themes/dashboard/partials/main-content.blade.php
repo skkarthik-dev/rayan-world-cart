@@ -38,7 +38,9 @@
                 <div class="ps-card ps-card--sale-report">
                     <div class="ps-card__header">
                         <h4>{{ __('Sales Reports') }}</h4>
-                        <a href="{{ route('marketplace.vendor.revenues.index') }}"><small>{{ __('Revenues') }} <i class="fas fa-angle-double-right"></i></small></a>
+                        <a href="{{ route('marketplace.vendor.revenues.index') }}">
+                            <small>{{ __('Revenues in :label', ['label' => $data['predefinedRange']]) }} <i class="fas fa-angle-double-right"></i></small>
+                        </a>
                     </div>
                     <div class="ps-card__content">
                         <sales-reports-chart url="{{ route('marketplace.vendor.chart.month', [
@@ -52,6 +54,9 @@
                 <div class="ps-card ps-card--earning">
                     <div class="ps-card__header">
                         <h4>{{ __('Earnings') }}</h4>
+                        <div class="text-primary">
+                            <small>{{ __('Earnings in :label', ['label' => $data['predefinedRange']]) }}</small>
+                        </div>
                     </div>
                     <div class="ps-card__content">
                         <div class="ps-card__chart">
@@ -67,13 +72,13 @@
                         </div>
                         <div class="ps-card__status">
                             <p class="green">
-                                <strong> {{ format_price($data['revenue']['amount']) }}</strong><span>{{ __('Revenue') }}</span>
+                                <strong>{{ format_price($data['revenue']['amount']) }}</strong><span>{{ __('Revenue') }}</span>
                             </p>
                             <p class="red">
-                                <strong> {{ format_price($data['revenue']['withdrawal']) }}</strong><span>{{ __('Withdrawals') }}</span>
+                                <strong>{{ format_price($data['revenue']['withdrawal']) }}</strong><span data-toggle="tooltip" title="{{ __('Includes Completed, Pending, and Processing statuses') }}">{{ __('Withdrawals') }}</span>
                             </p>
                             <p class="yellow">
-                                <strong> {{ format_price($data['revenue']['fee']) }}</strong><span>{{ __('Fees') }}</span>
+                                <strong>{{ format_price($data['revenue']['fee']) }}</strong><span>{{ __('Fees') }}</span>
                             </p>
                         </div>
                     </div>
@@ -169,8 +174,11 @@
 </div>
 <div class="ps-section__right">
     <section class="ps-card ps-card--statics">
-        <div class="ps-card__header">
+        <div class="ps-card__header d-block">
             <h4>{{ __('Statistics') }}</h4>
+            <div class="text-primary">
+                <small>{{ __('Statistics in :label', ['label' => $data['predefinedRange']]) }}</small>
+            </div>
         </div>
         <div class="ps-card__content">
             <div class="ps-block--stat yellow">

@@ -14,7 +14,7 @@ class SubscribeNewsletterEvent
     /**
      * @var Newsletter
      */
-    public $newsLetter;
+    public $newsletter;
 
     /**
      * Create a new event instance.
@@ -23,6 +23,6 @@ class SubscribeNewsletterEvent
      */
     public function __construct(Newsletter $newsletter)
     {
-        $this->newsLetter = $newsletter;
+        $this->newsletter = $newsletter;
     }
 }

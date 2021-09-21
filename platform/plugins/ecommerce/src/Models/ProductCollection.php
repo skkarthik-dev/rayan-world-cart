@@ -68,4 +68,22 @@ class ProductCollection extends BaseModel
             )
             ->where('is_variation', 0);
     }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function promotions()
+    {
+        return $this
+            ->belongsToMany(Discount::class, 'ec_discount_product_collections', 'product_collection_id')
+            ->where('type', 'promotion')
+            ->where('start_date', '<=', now())
+            ->where('target', 'group-products')
+            ->where(function ($query) {
+                return $query
+                    ->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            })
+            ->where('product_quantity', 1);
+    }
 }

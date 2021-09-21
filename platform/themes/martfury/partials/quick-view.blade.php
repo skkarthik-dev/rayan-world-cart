@@ -24,7 +24,9 @@
         <h4 class="ps-product__price @if ($product->front_sale_price !== $product->price) sale @endif"><span>{{ format_price($product->front_sale_price_with_taxes) }}</span> @if ($product->front_sale_price !== $product->price) <del>{{ format_price($product->price_with_taxes) }} </del> @endif</h4>
         <div class="ps-product__desc">
             <div class="ps-list--dot">
+                {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
                 {!! clean($product->description) !!}
+                {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
             </div>
         </div>
         @if ($product->variations()->count() > 0)

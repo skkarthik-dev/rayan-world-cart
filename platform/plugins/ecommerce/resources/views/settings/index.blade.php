@@ -335,6 +335,22 @@
                             </label>
                         </div>
 
+                        <div class="review-settings-container mb-4 border rounded-top rounded-bottom p-3 bg-light @if (!EcommerceHelper::isReviewEnabled()) d-none @endif">
+                            <div class="form-group">
+                                <label class="text-title-field"
+                                       for="review_max_file_size">{{ trans('plugins/ecommerce::ecommerce.setting.review.max_file_size') }}
+                                </label>
+                                <div class="next-input--stylized">
+                                    <span class="next-input-add-on next-input__add-on--before">MB</span>
+                                    <input type="number" min="1" max="1024" name="review_max_file_size" class="next-input input-mask-number next-input--invisible" value="{{ EcommerceHelper::reviewMaxFileSize() }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="text-title-field" for="review_max_file_number">{{ trans('plugins/ecommerce::ecommerce.setting.review.max_file_number') }}</label>
+                                <input type="number" min="1" max="100" name="review_max_file_number" class="next-input input-mask-number next-input--invisible" value="{{ EcommerceHelper::reviewMaxFileNumber() }}">
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="text-title-field"
                                    for="enable_quick_buy_button">{{ trans('plugins/ecommerce::ecommerce.setting.enable_quick_buy_button') }}
@@ -423,6 +439,27 @@
                                 <span class="next-input-add-on next-input__add-on--before unit-item-price-label">{{ get_application_currency()->symbol }}</span>
                                 <input type="text" name="minimum_order_amount" class="next-input input-mask-number next-input--invisible" value="{{ get_ecommerce_setting('minimum_order_amount', 0) }}">
                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text-title-field" for="invoice_font_family">{{ trans('plugins/ecommerce::ecommerce.setting.invoice_font_family') }}</label>
+                            {!! Form::googleFonts('invoice_font_family', get_ecommerce_setting('invoice_font_family', 'Roboto')) !!}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text-title-field"
+                                   for="enable_invoice_stamp">{{ trans('plugins/ecommerce::ecommerce.setting.enable_invoice_stamp') }}
+                            </label>
+                            <label class="hrv-label">
+                                <input type="radio" name="enable_invoice_stamp" class="hrv-radio"
+                                       value="1"
+                                       @if (get_ecommerce_setting('enable_invoice_stamp', 1) == 1) checked @endif>{{ trans('core/setting::setting.general.yes') }}
+                            </label>
+                            <label class="hrv-label">
+                                <input type="radio" name="enable_invoice_stamp" class="hrv-radio"
+                                       value="0"
+                                       @if (get_ecommerce_setting('enable_invoice_stamp', 1) == 0) checked @endif>{{ trans('core/setting::setting.general.no') }}
+                            </label>
                         </div>
 
                         <div class="form-group">

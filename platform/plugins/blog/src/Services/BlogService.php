@@ -72,14 +72,21 @@ class BlogService
 
                 Theme::breadcrumb()->add(__('Home'), route('public.index'));
 
-                $category = $post->categories->first();
+                $category = $post->categories->sortByDesc('id')->first();
                 if ($category) {
+
+                    if ($category->parents->count()) {
+                        foreach ($category->parents as $parentCategory) {
+                            Theme::breadcrumb()->add($parentCategory->name, $parentCategory->url);
+                        }
+                    }
+
                     Theme::breadcrumb()->add($category->name, $category->url);
                 }
 
-                do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, POST_MODULE_SCREEN_NAME, $post);
-
                 Theme::breadcrumb()->add(SeoHelper::getTitle(), $post->url);
+
+                do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, POST_MODULE_SCREEN_NAME, $post);
 
                 return [
                     'view'         => 'post',
@@ -114,19 +121,23 @@ class BlogService
                         route('categories.edit', $category->id));
                 }
 
-                $allRelatedCategoryIds = array_unique(array_merge(
-                    app(CategoryInterface::class)->getAllRelatedChildrenIds($category),
-                    [$category->id]
-                ));
+                $allRelatedCategoryIds = $category->getChildrenIds($category, [$category->id]);
 
                 $posts = app(PostInterface::class)
-                    ->getByCategory($allRelatedCategoryIds, theme_option('number_of_posts_in_a_category', 12));
-
-                do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, CATEGORY_MODULE_SCREEN_NAME, $category);
+                    ->getByCategory($allRelatedCategoryIds, (int)theme_option('number_of_posts_in_a_category', 12));
 
                 Theme::breadcrumb()
-                    ->add(__('Home'), route('public.index'))
-                    ->add(SeoHelper::getTitle(), $category->url);
+                    ->add(__('Home'), route('public.index'));
+
+                if ($category->parents->count()) {
+                    foreach ($category->parents->reverse() as $parentCategory) {
+                        Theme::breadcrumb()->add($parentCategory->name, $parentCategory->url);
+                    }
+                }
+
+                Theme::breadcrumb()->add(SeoHelper::getTitle(), $category->url);
+
+                do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, CATEGORY_MODULE_SCREEN_NAME, $category);
 
                 return [
                     'view'         => 'category',
@@ -154,13 +165,13 @@ class BlogService
                     admin_bar()->registerLink(trans('plugins/blog::tags.edit_this_tag'), route('tags.edit', $tag->id));
                 }
 
-                $posts = get_posts_by_tag($tag->id, theme_option('number_of_posts_in_a_tag', 12));
-
-                do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, TAG_MODULE_SCREEN_NAME, $tag);
+                $posts = get_posts_by_tag($tag->id, (int)theme_option('number_of_posts_in_a_tag', 12));
 
                 Theme::breadcrumb()
                     ->add(__('Home'), route('public.index'))
                     ->add(SeoHelper::getTitle(), $tag->url);
+
+                do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, TAG_MODULE_SCREEN_NAME, $tag);
 
                 return [
                     'view'         => 'tag',

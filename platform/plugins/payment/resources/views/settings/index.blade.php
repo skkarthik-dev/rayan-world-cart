@@ -28,7 +28,7 @@
                         <tbody><tr class="border-pay-row">
                             <td class="border-pay-col"><i class="fa fa-theme-payments"></i></td>
                             <td style="width: 20%;">
-                                <img class="filter-black" src="{{ url('vendor/core/plugins/payment/images/stripe.svg') }}">
+                                <img class="filter-black" src="{{ url('vendor/core/plugins/payment/images/stripe.svg') }}" alt="stripe">
                             </td>
                             <td class="border-right">
                                 <ul>
@@ -105,6 +105,7 @@
                                                     <input type="password" class="next-input" placeholder="••••••••" id="stripe_secret" name="payment_stripe_secret" value="{{ app()->environment('demo') ? '*******************************' : setting('payment_stripe_secret') }}">
                                                 </div>
                                             </div>
+                                            {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, 'stripe') !!}
                                         </div>
                                     </div>
                                 </div>
@@ -209,6 +210,8 @@
                                                     {{ trans('plugins/payment::payment.sandbox_mode') }}
                                                 </label>
                                             </div>
+
+                                            {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, 'paypal') !!}
                                         </div>
                                     </div>
                                 </div>
@@ -262,7 +265,7 @@
                                 <td class="border-left" colspan="3">
                                     {!! Form::open() !!}
                                     {!! Form::hidden('type', 'cod', ['class' => 'payment_type']) !!}
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-12 mt-2">
                                         <div class="well bg-white">
                                             <div class="form-group">
                                                 <label class="text-title-field" for="payment_cod_name">{{ trans('plugins/payment::payment.method_name') }}</label>
@@ -272,6 +275,7 @@
                                                 <label class="text-title-field" for="payment_cod_description">{{ trans('plugins/payment::payment.payment_method_description') }}</label>
                                                 {!! Form::editor('payment_cod_description', setting('payment_cod_description')) !!}
                                             </div>
+                                            {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, 'cod') !!}
                                         </div>
                                     </div>
                                     <div class="col-12 bg-white text-right">
@@ -303,7 +307,7 @@
                                 <td class="border-left" colspan="3">
                                     {!! Form::open() !!}
                                     {!! Form::hidden('type', 'bank_transfer', ['class' => 'payment_type']) !!}
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-12 mt-2">
                                         <div class="well bg-white">
                                             <div class="form-group">
                                                 <label class="text-title-field" for="payment_bank_transfer_name">{{ trans('plugins/payment::payment.method_name') }}</label>
@@ -313,6 +317,7 @@
                                                 <label class="text-title-field" for="payment_bank_transfer_description">{{ trans('plugins/payment::payment.payment_method_description') }}</label>
                                                 {!! Form::editor('payment_bank_transfer_description', setting('payment_bank_transfer_description')) !!}
                                             </div>
+                                            {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, 'bank_transfer') !!}
                                         </div>
                                     </div>
                                     <div class="col-12 bg-white text-right">

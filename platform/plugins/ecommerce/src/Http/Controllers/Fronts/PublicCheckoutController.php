@@ -772,6 +772,14 @@ class PublicCheckoutController
 
                 case PaymentMethodEnum::PAYPAL:
 
+                    $supportedCurrencies = $payPalService->supportedCurrencyCodes();
+
+                    if (!in_array($paymentData['currency'], $supportedCurrencies)) {
+                        $paymentData['error'] = true;
+                        $paymentData['message'] = __(":name doesn't support :currency. List of currencies supported by :name: :currencies.", ['name' => 'PayPal', 'currency' => $paymentData['currency'], 'currencies' => implode(', ', $supportedCurrencies)]);
+                        break;
+                    }
+
                     $checkoutUrl = $payPalService->execute($request);
                     if ($checkoutUrl) {
                         return redirect($checkoutUrl);
@@ -781,6 +789,15 @@ class PublicCheckoutController
                     $paymentData['message'] = $payPalService->getErrorMessage();
                     break;
                 case PaymentMethodEnum::COD:
+
+                    $minimumOrderAmount = setting('payment_cod_minimum_amount', 0);
+
+                    if ($minimumOrderAmount > Cart::instance('cart')->rawSubTotal()) {
+                        $paymentData['error'] = true;
+                        $paymentData['message'] = __('Minimum order amount to use COD (Cash On Delivery) payment method is :amount, you need to buy more :more to place an order!', ['amount' => format_price($minimumOrderAmount), 'more' => format_price($minimumOrderAmount - Cart::instance('cart')->rawSubTotal())]);
+                        break;
+                    }
+
                     $paymentData['charge_id'] = $codPaymentService->execute($request);
                     break;
 

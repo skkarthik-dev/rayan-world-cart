@@ -14,7 +14,7 @@ return [
     'payment_via_card'                      => 'Payment via card',
     'card_number'                           => 'Card number',
     'full_name'                             => 'Full name',
-    'payment_via_paypal'                    => 'Payment via PayPal',
+    'payment_via_paypal'                    => 'Fast and safe online payment via PayPal.',
     'mm_yy'                                 => 'MM/YY',
     'cvc'                                   => 'CVC',
     'details'                               => 'Details',

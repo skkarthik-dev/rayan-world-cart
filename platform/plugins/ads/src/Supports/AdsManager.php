@@ -118,8 +118,12 @@ class AdsManager
      * @param array $attributes
      * @return string|null
      */
-    public function displayAds(string $key, array $attributes = [])
+    public function displayAds(?string $key, array $attributes = [])
     {
+        if (!$key) {
+            return null;
+        }
+        
         $this->load();
 
         $ads = $this->data

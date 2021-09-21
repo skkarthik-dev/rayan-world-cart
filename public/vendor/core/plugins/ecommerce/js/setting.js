@@ -33,6 +33,15 @@ $(document).ready(function () {
       }
     });
   });
+  var $reviewCheckbox = $('input[name="review_enabled"]');
+  var $reviewContentContainer = $('.review-settings-container');
+  $reviewCheckbox.on('change', function () {
+    if ($(this).val() == '1') {
+      $reviewContentContainer.removeClass('d-none');
+    } else {
+      $reviewContentContainer.addClass('d-none');
+    }
+  });
 });
 /******/ })()
 ;

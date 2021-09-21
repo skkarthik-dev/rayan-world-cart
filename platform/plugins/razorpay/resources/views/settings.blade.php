@@ -92,6 +92,8 @@
                                    name="payment_{{ RAZORPAY_PAYMENT_METHOD_NAME }}_secret"
                                    value="{{ get_payment_setting('secret', RAZORPAY_PAYMENT_METHOD_NAME) }}">
                         </div>
+
+                        {!! apply_filters(PAYMENT_METHOD_SETTINGS_CONTENT, null, RAZORPAY_PAYMENT_METHOD_NAME) !!}
                     </div>
                 </div>
             </div>

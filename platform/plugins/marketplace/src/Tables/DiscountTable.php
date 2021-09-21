@@ -50,6 +50,7 @@ class DiscountTable extends TableAbstract
                 if ($item->type === 'promotion') {
                     return '-';
                 }
+
                 if ($item->quantity === null) {
                     return $item->total_used;
                 }

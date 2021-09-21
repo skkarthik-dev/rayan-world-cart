@@ -309,6 +309,7 @@ var EcommerceProduct = /*#__PURE__*/function () {
 
                 _self.handleEvents();
               });
+              $current.closest('.modal-content').find('.variation-form-wrapper').remove();
             }
 
             $current.removeClass('button-loading');
@@ -331,6 +332,13 @@ var EcommerceProduct = /*#__PURE__*/function () {
       _self.$body.on('click', '#update-product-variation-button', function (event) {
         event.preventDefault();
         createOrUpdateVariation($(event.currentTarget));
+      });
+
+      $('#add-new-product-variation-modal').on('hidden.bs.modal', function (e) {
+        $(this).find('.modal-content .variation-form-wrapper').remove();
+      });
+      $('#edit-product-variation-modal').on('hidden.bs.modal', function (e) {
+        $(this).find('.modal-content .variation-form-wrapper').remove();
       });
 
       _self.$body.on('click', '#generate-all-versions-button', function (event) {

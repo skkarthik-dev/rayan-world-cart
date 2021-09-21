@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Html;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class ProductCategory extends BaseModel
@@ -62,11 +63,44 @@ class ProductCategory extends BaseModel
     }
 
     /**
+     * @return Collection
+     */
+    public function getParentsAttribute(): Collection
+    {
+        $parents = collect([]);
+
+        $parent = $this->parent;
+
+        while($parent->id) {
+            $parents->push($parent);
+            $parent = $parent->parent;
+        }
+
+        return $parents;
+    }
+
+    /**
      * @return HasMany
      */
     public function children(): HasMany
     {
         return $this->hasMany(ProductCategory::class, 'parent_id');
+    }
+
+    /**
+     * @return array
+     */
+    public function getChildrenIds($category, $childrenIds = []): array
+    {
+        $children = $category->children()->select('id')->get();
+
+        foreach ($children as $child) {
+            $childrenIds[] = $child->id;
+
+            $childrenIds = array_merge($childrenIds, $this->getChildrenIds($child, $childrenIds));
+        }
+
+        return array_unique($childrenIds);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Botble\Base\Models\MetaBox as MetaBoxModel;
 use Botble\Base\Supports\BaseSeeder;
 use Botble\Ecommerce\Models\ProductCategory;
 use Botble\Slug\Models\Slug;
@@ -36,36 +37,28 @@ class ProductCategorySeeder extends BaseSeeder
                         'name'     => 'Consumer Electronic',
                         'children' => [
                             [
-                                'name'      => 'Home Audio & Theaters',
-                                'parent_id' => 15,
+                                'name' => 'Home Audio & Theaters',
                             ],
                             [
-                                'name'      => 'TV & Videos',
-                                'parent_id' => 15,
+                                'name' => 'TV & Videos',
                             ],
                             [
-                                'name'      => 'Camera, Photos & Videos',
-                                'parent_id' => 15,
+                                'name' => 'Camera, Photos & Videos',
                             ],
                             [
-                                'name'      => 'Cellphones & Accessories',
-                                'parent_id' => 15,
+                                'name' => 'Cellphones & Accessories',
                             ],
                             [
-                                'name'      => 'Headphones',
-                                'parent_id' => 15,
+                                'name' => 'Headphones',
                             ],
                             [
-                                'name'      => 'Videos games',
-                                'parent_id' => 15,
+                                'name' => 'Videos games',
                             ],
                             [
-                                'name'      => 'Wireless Speakers',
-                                'parent_id' => 15,
+                                'name' => 'Wireless Speakers',
                             ],
                             [
-                                'name'      => 'Office Electronic',
-                                'parent_id' => 15,
+                                'name' => 'Office Electronic',
                             ],
                         ],
                     ],
@@ -73,16 +66,13 @@ class ProductCategorySeeder extends BaseSeeder
                         'name'     => 'Accessories & Parts',
                         'children' => [
                             [
-                                'name'      => 'Digital Cables',
-                                'parent_id' => 16,
+                                'name' => 'Digital Cables',
                             ],
                             [
-                                'name'      => 'Audio & Video Cables',
-                                'parent_id' => 16,
+                                'name' => 'Audio & Video Cables',
                             ],
                             [
-                                'name'      => 'Batteries',
-                                'parent_id' => 16,
+                                'name' => 'Batteries',
                             ],
                         ],
                     ],
@@ -104,20 +94,16 @@ class ProductCategorySeeder extends BaseSeeder
                         'name'     => 'Computer & Technologies',
                         'children' => [
                             [
-                                'name'      => 'Computer & Tablets',
-                                'parent_id' => 17,
+                                'name' => 'Computer & Tablets',
                             ],
                             [
-                                'name'      => 'Laptop',
-                                'parent_id' => 17,
+                                'name' => 'Laptop',
                             ],
                             [
-                                'name'      => 'Monitors',
-                                'parent_id' => 17,
+                                'name' => 'Monitors',
                             ],
                             [
-                                'name'      => 'Computer Components',
-                                'parent_id' => 17,
+                                'name' => 'Computer Components',
                             ],
                         ],
                     ],
@@ -125,20 +111,16 @@ class ProductCategorySeeder extends BaseSeeder
                         'name'     => 'Networking',
                         'children' => [
                             [
-                                'name'      => 'Drive & Storages',
-                                'parent_id' => 18,
+                                'name' => 'Drive & Storages',
                             ],
                             [
-                                'name'      => 'Gaming Laptop',
-                                'parent_id' => 18,
+                                'name' => 'Gaming Laptop',
                             ],
                             [
-                                'name'      => 'Security & Protection',
-                                'parent_id' => 18,
+                                'name' => 'Security & Protection',
                             ],
                             [
-                                'name'      => 'Accessories',
-                                'parent_id' => 18,
+                                'name' => 'Accessories',
                             ],
                         ],
                     ],
@@ -198,47 +180,46 @@ class ProductCategorySeeder extends BaseSeeder
 
         ProductCategory::truncate();
         Slug::where('reference_type', ProductCategory::class)->delete();
+        MetaBoxModel::where('reference_type', ProductCategory::class)->delete();
 
-        foreach ($categories as $key => $item) {
-            $item['order'] = $key;
-            $category = ProductCategory::create(Arr::except($item, ['icon', 'children']));
+        foreach ($categories as $index => $item) {
+            $this->createCategoryItem($index, $item);
+        }
+    }
 
-            MetaBox::saveMetaBoxData($category, 'icon', $item['icon']);
+    /**
+     * @param int $index
+     * @param array $category
+     * @param int $parentId
+     */
+    protected function createCategoryItem(int $index, array $category, int $parentId = 0): void
+    {
+        $category['parent_id'] = $parentId;
+        $category['order'] = $index;
 
-            Slug::create([
-                'reference_type' => ProductCategory::class,
-                'reference_id'   => $category->id,
-                'key'            => Str::slug($category->name),
-                'prefix'         => SlugHelper::getPrefix(ProductCategory::class),
-            ]);
+        if (Arr::has($category, 'children')) {
+            $children = $category['children'];
+            unset($category['children']);
+        } else {
+            $children = [];
         }
 
-        foreach ($categories as $key => $item) {
-            foreach (Arr::get($item, 'children', []) as $child) {
-                $child['parent_id'] = $key + 1;
-                $child = ProductCategory::create(Arr::except($child, ['icon', 'children']));
+        $createdCategory = ProductCategory::create(Arr::except($category, ['icon']));
 
-                Slug::create([
-                    'reference_type' => ProductCategory::class,
-                    'reference_id'   => $child->id,
-                    'key'            => Str::slug($child->name),
-                    'prefix'         => SlugHelper::getPrefix(ProductCategory::class),
-                ]);
-            }
+        Slug::create([
+            'reference_type' => ProductCategory::class,
+            'reference_id'   => $createdCategory->id,
+            'key'            => Str::slug($createdCategory->name),
+            'prefix'         => SlugHelper::getPrefix(ProductCategory::class),
+        ]);
+
+        if (isset($category['icon'])) {
+            MetaBox::saveMetaBoxData($createdCategory, 'icon', $category['icon']);
         }
 
-        foreach ($categories as $item) {
-            foreach (Arr::get($item, 'children', []) as $subKey => $sub) {
-                foreach (Arr::get($sub, 'children', []) as $child) {
-                    $child = ProductCategory::create(Arr::except($child, ['icon', 'children']));
-
-                    Slug::create([
-                        'reference_type' => ProductCategory::class,
-                        'reference_id'   => $child->id,
-                        'key'            => Str::slug($child->name),
-                        'prefix'         => SlugHelper::getPrefix(ProductCategory::class),
-                    ]);
-                }
+        if ($children) {
+            foreach ($children as $childIndex => $child) {
+                $this->createCategoryItem($childIndex, $child, $createdCategory->id);
             }
         }
     }

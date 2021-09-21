@@ -44,7 +44,6 @@ class WithdrawalController
         return $table->render('plugins/marketplace::themes.dashboard.table.base');
     }
 
-
     /**
      * @param FormBuilder $formBuilder
      * @return BaseHttpResponse|string
@@ -110,16 +109,16 @@ class WithdrawalController
      */
     public function edit($id, FormBuilder $formBuilder)
     {
-        $customer = auth('customer')->user();
         $withdrawal = $this->withdrawalRepository->getFirstBy([
             'id'          => $id,
-            'customer_id' => $customer->id,
+            'customer_id' => auth('customer')->id(),
             'status'      => WithdrawalStatusEnum::PENDING,
         ]);
 
         if (!$withdrawal) {
             abort(404);
         }
+
         page_title()->setTitle(__('Update withdrawal request #' . $id));
 
         return $formBuilder->create(VendorWithdrawalForm::class, ['model' => $withdrawal])->renderForm();
@@ -133,11 +132,9 @@ class WithdrawalController
      */
     public function update($id, VendorEditWithdrawalRequest $request, BaseHttpResponse $response)
     {
-        $customer = auth('customer')->user();
-
         $withdrawal = $this->withdrawalRepository->getFirstBy([
             'id'          => $id,
-            'customer_id' => $customer->id,
+            'customer_id' => auth('customer')->id(),
             'status'      => WithdrawalStatusEnum::PENDING,
         ]);
 
@@ -146,7 +143,7 @@ class WithdrawalController
         }
 
         $status = WithdrawalStatusEnum::PENDING;
-        if ($request->get('cancel')) {
+        if ($request->input('cancel')) {
             $status = WithdrawalStatusEnum::CANCELED;
             $response->setNextUrl(route('marketplace.vendor.withdrawals.show', $withdrawal->id));
         }
@@ -170,11 +167,10 @@ class WithdrawalController
      */
     public function show($id, FormBuilder $formBuilder)
     {
-        $customer = auth('customer')->user();
         $withdrawal = $this->withdrawalRepository
             ->getFirstBy([
                 ['id', '=', $id],
-                ['customer_id', '=', $customer->id],
+                ['customer_id', '=', auth('customer')->id()],
                 ['status', '!=', WithdrawalStatusEnum::PENDING],
             ]);
 

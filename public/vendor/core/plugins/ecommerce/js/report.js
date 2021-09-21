@@ -99,6 +99,13 @@ __webpack_require__.r(__webpack_exports__);
         enabled: false
       }
     }).render();
+
+    if (jQuery && jQuery().tooltip) {
+      $('[data-toggle="tooltip"]').tooltip({
+        placement: 'top',
+        boundary: 'window'
+      });
+    }
   }
 });
 
@@ -12804,6 +12811,7 @@ $(function () {
   moment.locale($('html').attr('lang'));
   var $dateRange = $('.date-range-picker');
   var dateFormat = $dateRange.data('format') || 'YYYY-MM-DD';
+  var startDate = $dateRange.data('start-date') || moment().subtract(29, 'days');
   var today = moment();
   var endDate = moment().endOf('month');
 
@@ -12812,11 +12820,11 @@ $(function () {
   }
 
   var rangesTrans = BotbleVariables.languages.reports;
-  var ranges = (_ranges = {}, _defineProperty(_ranges, rangesTrans.today, [today, today]), _defineProperty(_ranges, rangesTrans.this_week, [moment().startOf('week'), today]), _defineProperty(_ranges, rangesTrans.last_7_days, [moment().subtract(6, 'days'), today]), _defineProperty(_ranges, rangesTrans.this_month, [moment().startOf('month'), endDate]), _defineProperty(_ranges, rangesTrans.this_year, [moment().startOf('year'), moment().endOf('year')]), _ranges);
+  var ranges = (_ranges = {}, _defineProperty(_ranges, rangesTrans.today, [today, today]), _defineProperty(_ranges, rangesTrans.this_week, [moment().startOf('week'), today]), _defineProperty(_ranges, rangesTrans.last_7_days, [moment().subtract(6, 'days'), today]), _defineProperty(_ranges, rangesTrans.last_30_days, [moment().subtract(29, 'days'), today]), _defineProperty(_ranges, rangesTrans.this_month, [moment().startOf('month'), endDate]), _defineProperty(_ranges, rangesTrans.this_year, [moment().startOf('year'), moment().endOf('year')]), _ranges);
   $dateRange.daterangepicker({
     ranges: ranges,
     alwaysShowCalendars: true,
-    startDate: moment().startOf('month'),
+    startDate: startDate,
     endDate: endDate,
     maxDate: endDate,
     opens: 'left',

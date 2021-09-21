@@ -114,6 +114,8 @@
         }
     }
 
+    let isRTL = $('body').prop('dir') === 'rtl';
+
     $(document).ready(function () {
         window.onBeforeChangeSwatches = function (data) {
             $('.add-to-cart-form .error-message').hide();
@@ -191,7 +193,7 @@
                         slider.slick({
                             slidesToShow: slider.data('item'),
                             slidesToScroll: 1,
-                            rtl: $('body').prop('dir') === 'rtl',
+                            rtl: isRTL,
                             infinite: false,
                             arrows: slider.data('arrow'),
                             focusOnSelect: true,
@@ -214,7 +216,7 @@
 
                             let imageHtml = '';
                             res.data.image_with_sizes.origin.forEach(function (item) {
-                                imageHtml += '<div class="item"><a href="' + item + '"><img src="' + item + '" alt="image"/></a></div>'
+                                imageHtml += '<div class="item"><a href="' + item + '"><img src="' + item + '" alt="' + res.data.name + '"/></a></div>';
                             });
 
                             primary.html(imageHtml);
@@ -222,7 +224,7 @@
                             primary.slick({
                                 slidesToShow: 1,
                                 slidesToScroll: 1,
-                                rtl: $('body').prop('dir') === 'rtl',
+                                rtl: isRTL,
                                 asNavFor: '.ps-product__variants',
                                 fade: true,
                                 dots: false,
@@ -239,7 +241,7 @@
 
                             let thumbHtml = '';
                             res.data.image_with_sizes.thumb.forEach(function (item) {
-                                thumbHtml += '<div class="item"><img src="' + item + '" alt="image"/></div>'
+                                thumbHtml += '<div class="item"><img src="' + item + '" alt="' + res.data.name + '"/></div>';
                             });
 
                             second.html(thumbHtml);
@@ -247,7 +249,7 @@
                             second.slick({
                                 slidesToShow: second.data('item'),
                                 slidesToScroll: 1,
-                                rtl: $('body').prop('dir') === 'rtl',
+                                rtl: isRTL,
                                 infinite: false,
                                 arrows: second.data('arrow'),
                                 focusOnSelect: true,
@@ -410,9 +412,6 @@
             });
         });
 
-        // $(document).on('change', '.switch-currency', function () {
-        //     $(this).closest('form').submit();
-        // });
         const $layoutShop = $('.ps-layout--shop');
         if($layoutShop.length > 0) {
             $(document).on('click', '#products-filter-sidebar', function(e) {
@@ -969,26 +968,118 @@
             $(this).closest('form').submit();
         });
 
+        let imagesReviewBuffer = [];
+        let setImagesFormReview = function (input) {
+            const dT = new ClipboardEvent('').clipboardData || // Firefox < 62 workaround exploiting https://bugzilla.mozilla.org/show_bug.cgi?id=1422655
+                new DataTransfer(); // specs compliant (as of March 2018 only Chrome)
+            for (let file of imagesReviewBuffer) {
+                dT.items.add(file);
+            }
+            input.files = dT.files;
+            loadPreviewImage(input);
+        }
+
+        let loadPreviewImage = function (input) {
+            let $uploadText = $('.image-upload__text');
+            const maxFiles = $(input).data('max-files');
+            let filesAmount = input.files.length;
+
+            if (maxFiles) {
+                if (filesAmount >= maxFiles) {
+                    $uploadText.closest('.image-upload__uploader-container').addClass('d-none');
+                } else {
+                    $uploadText.closest('.image-upload__uploader-container').removeClass('d-none');
+                }
+                $uploadText.text(filesAmount + '/' + maxFiles);
+            } else {
+                $uploadText.text(filesAmount);
+            }
+            const viewerList = $('.image-viewer__list');
+            const $template = $('#review-image-template').html();
+
+            viewerList.addClass('is-loading');
+            viewerList.find('.image-viewer__item').remove();
+
+            if (filesAmount) {
+                for (let i = filesAmount - 1; i >= 0; i--) {
+                    viewerList.prepend($template.replace('__id__', i));
+                }
+                for (let j = filesAmount - 1; j >= 0; j--) {
+                    let reader = new FileReader();
+                    reader.onload = function(event) {
+                        viewerList
+                            .find('.image-viewer__item[data-id=' + j + ']')
+                            .find('img')
+                            .attr('src', event.target.result);
+                    }
+                    reader.readAsDataURL(input.files[j]);
+                }
+            }
+            viewerList.removeClass('is-loading')
+        }
+
+        $(document).on('change', '.form-review-product input[type=file]', function (event) {
+            event.preventDefault();
+            let input = this;
+            let $input = $(input);
+            let maxSize = $input.data('max-size');
+            Object.keys(input.files).map(function(i) {
+                if (maxSize && (input.files[i].size / 1024) > maxSize) {
+                    let message = $input.data('max-size-message')
+                        .replace('__attribute__', input.files[i].name)
+                        .replace('__max__', maxSize)
+                    window.showAlert('alert-danger', message);
+                } else {
+                    imagesReviewBuffer.push(input.files[i]);
+                }
+            });
+
+            let filesAmount = imagesReviewBuffer.length;
+            const maxFiles = $input.data('max-files');
+            if (maxFiles && filesAmount > maxFiles) {
+                imagesReviewBuffer.splice(filesAmount - maxFiles - 1, filesAmount - maxFiles);
+            }
+
+            setImagesFormReview(input);
+        });
+
+        $(document).on('click', '.form-review-product .image-viewer__icon-remove', function (event) {
+            event.preventDefault();
+            const $this = $(event.currentTarget);
+            let id = $this.closest('.image-viewer__item').data('id');
+            imagesReviewBuffer.splice(id, 1);
+
+            let input = $('.form-review-product input[type=file]')[0];
+            setImagesFormReview(input);
+        });
+
+        if (sessionStorage.reloadReviewsTab) {
+            $('.ps-tab-list li a[href="#tab-reviews"]').trigger('click');
+            sessionStorage.reloadReviewsTab = false;
+        }
+
         $(document).on('click', '.form-review-product button[type=submit]', function (event) {
             event.preventDefault();
             event.stopPropagation();
             $(this).prop('disabled', true).addClass('btn-disabled').addClass('button-loading');
 
+            const $form = $(this).closest('form');
             $.ajax({
                 type: 'POST',
                 cache: false,
-                url: $(this).closest('form').prop('action'),
-                data: new FormData($(this).closest('form')[0]),
+                url: $form.prop('action'),
+                data: new FormData($form[0]),
                 contentType: false,
                 processData: false,
                 success: res => {
                     if (!res.error) {
-                        $(this).closest('form').find('select').val(0);
-                        $(this).closest('form').find('textarea').val('');
+                        $form.find('select').val(0);
+                        $form.find('textarea').val('');
 
                         showSuccess(res.message);
 
                         setTimeout(function () {
+                            sessionStorage.reloadReviewsTab = true;
                             window.location.reload();
                         }, 1500);
                     } else {
@@ -999,7 +1090,7 @@
                 },
                 error: res => {
                     $(this).prop('disabled', false).removeClass('btn-disabled').removeClass('button-loading');
-                    handleError(res, $(this).closest('form'));
+                    handleError(res, $form);
                 }
             });
         });
@@ -1179,7 +1270,7 @@
                         $('.ps-product--quickview .ps-product__images').slick({
                             slidesToShow: 1,
                             slidesToScroll: 1,
-                            rtl: $('body').prop('dir') === 'rtl',
+                            rtl: isRTL,
                             fade: true,
                             dots: false,
                             arrows: true,

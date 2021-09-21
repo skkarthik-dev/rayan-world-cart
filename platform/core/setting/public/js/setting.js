@@ -18724,7 +18724,7 @@ var SettingManagement = /*#__PURE__*/function () {
 
       var addEmail = function addEmail() {
         var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-        return $addBtn.before("<div class=\"d-flex mt-2 more-email align-items-center\">\n                <input type=\"email\" class=\"next-input\" placeholder=\"".concat($addBtn.data('placeholder'), "\" name=\"admin_email[]\" value=\"").concat(value, "\" />\n                <a class=\"btn btn-link text-danger\"><i class=\"fas fa-minus\"></i></a>\n            </div>"));
+        return $addBtn.before("<div class=\"d-flex mt-2 more-email align-items-center\">\n                <input type=\"email\" class=\"next-input\" placeholder=\"".concat($addBtn.data('placeholder'), "\" name=\"admin_email[]\" value=\"").concat(value ? value : '', "\" />\n                <a class=\"btn btn-link text-danger\"><i class=\"fas fa-minus\"></i></a>\n            </div>"));
       };
 
       var render = function render() {

@@ -31,6 +31,7 @@ use Event;
 use Form;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use MacroableModels;
 use SeoHelper;
@@ -127,6 +128,20 @@ class MarketplaceServiceProvider extends ServiceProvider
                         'url'         => route('marketplace.settings'),
                         'permissions' => ['marketplace.settings'],
                     ]);
+
+                    if (get_marketplace_setting('verify_vendor', 1)) {
+                        dashboard_menu()->registerItem([
+                            'id'          => 'cms-plugins-marketplace-unverified-vendor',
+                            'priority'    => 4,
+                            'parent_id'   => 'cms-plugins-marketplace',
+                            'name'        => 'plugins/marketplace::unverified-vendor.name',
+                            'icon'        => null,
+                            'url'         => route('marketplace.unverified-vendors.index'),
+                            'permissions' => ['marketplace.unverified-vendors.index'],
+                        ]);
+                    } else {
+                        config(['plugins.marketplace.email.templates' => Arr::except(config('plugins.marketplace.email.templates'), 'verify_vendor')]);
+                    }
 
                 EmailHandler::addTemplateSettings(MARKETPLACE_MODULE_SCREEN_NAME, config('plugins.marketplace.email'));
             });

@@ -58,7 +58,7 @@ return [
     'no_customer_found'                                        => 'No customer found!',
     'one_time_per_order'                                       => 'One time per order',
     'one_time_per_product_in_cart'                             => 'One time per product in cart',
-    'number_of_products'                                       => 'Number of products',
+    'number_of_products'                                       => 'Number of products required to apply',
     'selected_products'                                        => 'Selected products',
     'selected_customers'                                       => 'Selected customers',
     'time'                                                     => 'Time',

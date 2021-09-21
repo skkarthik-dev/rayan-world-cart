@@ -203,7 +203,6 @@ class MenuSeeder extends BaseSeeder
     /**
      * @param int $index
      * @param array $menuNode
-     * @param string $locale
      * @param int $parentId
      */
     protected function createMenuNode(int $index, array $menuNode, int $parentId = 0): void
