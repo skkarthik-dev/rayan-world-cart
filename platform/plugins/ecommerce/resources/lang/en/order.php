@@ -38,7 +38,7 @@ return [
     'system'                                                                                                                => 'System',
     'new_order_from'                                                                                                        => 'New order :order_id from :customer',
     'confirmation_email_was_sent_to_customer'                                                                               => 'The email confirmation was sent to customer',
-    'address_name_required'                                                                                                 => 'The name field is required.',
+    'address_name_required'                                                                                                 => 'The namess field is required.',
     'address_phone_required'                                                                                                => 'The phone field is required.',
     'address_email_required'                                                                                                => 'The email field is required.',
     'address_email_unique'                                                                                                  => 'The customer with that email is existed, please choose other email or login with this email!',
