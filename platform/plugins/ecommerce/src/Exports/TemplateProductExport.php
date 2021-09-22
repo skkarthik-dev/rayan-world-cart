@@ -78,7 +78,7 @@ class TemplateProductExport implements FromCollection,
             'Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.',
         ]);
 
-        $productName = $productNames->random();
+        $productName = $productNames->random(1);
 
         $categories = app(ProductCategoryInterface::class)->getModel()->inRandomOrder()->limit(2)->get();
         $brands = app(BrandInterface::class)->pluck('name', 'id');
@@ -93,17 +93,17 @@ class TemplateProductExport implements FromCollection,
 
         $product = [
             'name'                             => $productName,
-            'description'                      => $descriptions->random(),
+            'description'                      => $descriptions->random(1),
             'slug'                             => '',
             'sku'                              => Str::upper(Str::random(7)),
             'auto_generate_sku'                => '',
             'categories'                       => $categories->pluck('name')->implode(','),
             'status'                           => BaseStatusEnum::PUBLISHED,
             'is_featured'                      => 'Yes',
-            'brand'                            => $this->brands->random(),
+            'brand'                            => $this->brands->random(1),
             'product_collections'              => '',
             'labels'                           => '',
-            'tax'                              => $this->taxes->random(),
+            'tax'                              => $this->taxes->random(1),
             'images'                           => 'products/image.jpg',
             'price'                            => $price,
             'product_attributes'               => $attributeSets->pluck('title')->implode(','),
@@ -124,7 +124,7 @@ class TemplateProductExport implements FromCollection,
 
         $attributes1 = [];
         foreach ($attributeSets as $set) {
-            $attributes1[] = $set->title . ':' . $set->attributes->random()->title;
+            $attributes1[] = $set->title . ':' . $set->attributes->random(1)->title;
         }
 
         $productVariation1 = [
@@ -160,9 +160,9 @@ class TemplateProductExport implements FromCollection,
 
         $attributes2 = [];
         foreach ($attributeSets as $set) {
-            $attr = $set->title . ':' . $set->attributes->random()->title;
+            $attr = $set->title . ':' . $set->attributes->random(1)->title;
             if (in_array($attr, $attributes1)) {
-                $attr = $set->title . ':' . $set->attributes->random()->title;
+                $attr = $set->title . ':' . $set->attributes->random(1)->title;
             }
             $attributes2[] = $attr;
         }
