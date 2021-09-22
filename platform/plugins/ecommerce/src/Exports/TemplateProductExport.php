@@ -93,9 +93,9 @@ class TemplateProductExport implements FromCollection,
 
         $product = [
             'name'                             => $productName,
-            'description'                      => 'fghdfkg',
+            'description'                      => $descriptions->random(),
             'slug'                             => '',
-            'sku'                              => Str::upper(Str::random(7)),
+            'sku'                              => 'fdghdf',
             'auto_generate_sku'                => '',
             'categories'                       => $categories->pluck('name')->implode(','),
             'status'                           => BaseStatusEnum::PUBLISHED,
