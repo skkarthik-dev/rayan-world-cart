@@ -78,7 +78,7 @@ class TemplateProductExport implements FromCollection,
             'Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.',
         ]);
 
-        $productName = $productNames->random(1);
+        $productName = $productNames->random();
 
         $categories = app(ProductCategoryInterface::class)->getModel()->inRandomOrder()->limit(2)->get();
         $brands = app(BrandInterface::class)->pluck('name', 'id');
@@ -93,17 +93,17 @@ class TemplateProductExport implements FromCollection,
 
         $product = [
             'name'                             => $productName,
-            'description'                      => $descriptions->random(1),
+            'description'                      => $descriptions->random(),
             'slug'                             => '',
             'sku'                              => Str::upper(Str::random(7)),
             'auto_generate_sku'                => '',
             'categories'                       => $categories->pluck('name')->implode(','),
             'status'                           => BaseStatusEnum::PUBLISHED,
-            'is_featured'                      => 'Yes',
-            'brand'                            => $this->brands->random(1),
+            //'is_featured'                      => Arr::random(['Yes', 'No']),
+            'brand'                            => $this->brands->random(),
             'product_collections'              => '',
             'labels'                           => '',
-            'tax'                              => $this->taxes->random(1),
+            'tax'                              => $this->taxes->random(),
             'images'                           => 'products/image.jpg',
             'price'                            => $price,
             'product_attributes'               => $attributeSets->pluck('title')->implode(','),
@@ -124,7 +124,7 @@ class TemplateProductExport implements FromCollection,
 
         $attributes1 = [];
         foreach ($attributeSets as $set) {
-            $attributes1[] = $set->title . ':' . $set->attributes->random(1)->title;
+            $attributes1[] = $set->title . ':' . $set->attributes->random()->title;
         }
 
         $productVariation1 = [
@@ -135,7 +135,7 @@ class TemplateProductExport implements FromCollection,
             'auto_generate_sku'                => 'Yes',
             'categories'                       => '',
             'status'                           => BaseStatusEnum::PUBLISHED,
-            'is_featured'                      => 'Yes',
+            'is_featured'                      => Arr::random(['Yes', 'No']),
             'brand'                            => '',
             'product_collections'              => '',
             'labels'                           => '',
@@ -160,9 +160,9 @@ class TemplateProductExport implements FromCollection,
 
         $attributes2 = [];
         foreach ($attributeSets as $set) {
-            $attr = $set->title . ':' . $set->attributes->random(1)->title;
+            $attr = $set->title . ':' . $set->attributes->random()->title;
             if (in_array($attr, $attributes1)) {
-                $attr = $set->title . ':' . $set->attributes->random(1)->title;
+                $attr = $set->title . ':' . $set->attributes->random()->title;
             }
             $attributes2[] = $attr;
         }
@@ -175,7 +175,7 @@ class TemplateProductExport implements FromCollection,
             'auto_generate_sku'                => 'Yes',
             'categories'                       => '',
             'status'                           => BaseStatusEnum::PUBLISHED,
-            'is_featured'                      => 'Yes',
+            'is_featured'                      => Arr::random(['Yes', 'No']),
             'brand'                            => '',
             'product_collections'              => '',
             'labels'                           => '',
