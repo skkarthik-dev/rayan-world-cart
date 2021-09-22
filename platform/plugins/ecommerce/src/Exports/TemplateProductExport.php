@@ -82,7 +82,6 @@ class TemplateProductExport implements FromCollection,
 
         $categories = app(ProductCategoryInterface::class)->getModel()->inRandomOrder()->limit(2)->get();
         $brands = app(BrandInterface::class)->pluck('name', 'id');
-        dd(collect($brands));
         $this->brands = collect($brands);
         $taxes = app(TaxInterface::class)->pluck('title', 'id');
         $this->taxes = collect($taxes);
@@ -101,7 +100,7 @@ class TemplateProductExport implements FromCollection,
             'categories'                       => $categories->pluck('name')->implode(','),
             'status'                           => BaseStatusEnum::PUBLISHED,
             'is_featured'                      => 'Yes',
-            // 'brand'                            => $this->brands->random(),
+            'brand'                            => ($this->brands->isEmpty())?'':$this->brands->random(),
             'product_collections'              => '',
             'labels'                           => '',
             'tax'                              => $this->taxes->random(),
@@ -122,7 +121,6 @@ class TemplateProductExport implements FromCollection,
             'wide'                             => '',
             'height'                           => '',
         ];
-dd('test1');
         $attributes1 = [];
         foreach ($attributeSets as $set) {
             $attributes1[] = $set->title . ':' . $set->attributes->random()->title;
