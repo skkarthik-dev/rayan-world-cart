@@ -82,6 +82,7 @@ class TemplateProductExport implements FromCollection,
 
         $categories = app(ProductCategoryInterface::class)->getModel()->inRandomOrder()->limit(2)->get();
         $brands = app(BrandInterface::class)->pluck('name', 'id');
+        dd(collect($brands));
         $this->brands = collect($brands);
         $taxes = app(TaxInterface::class)->pluck('title', 'id');
         $this->taxes = collect($taxes);
