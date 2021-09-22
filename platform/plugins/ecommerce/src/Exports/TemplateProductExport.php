@@ -78,7 +78,7 @@ class TemplateProductExport implements FromCollection,
             'Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim.',
         ]);
 
-        $productName = $productNames->random(1);
+        $productName = $productNames->random();
 
         $categories = app(ProductCategoryInterface::class)->getModel()->inRandomOrder()->limit(2)->get();
         $brands = app(BrandInterface::class)->pluck('name', 'id');
@@ -99,7 +99,7 @@ class TemplateProductExport implements FromCollection,
             'auto_generate_sku'                => '',
             'categories'                       => $categories->pluck('name')->implode(','),
             'status'                           => BaseStatusEnum::PUBLISHED,
-            'is_featured'                      => Arr::random(['Yes', 'No']),
+            //'is_featured'                      => Arr::random(['Yes', 'No']),
             'brand'                            => $this->brands->random(),
             'product_collections'              => '',
             'labels'                           => '',
