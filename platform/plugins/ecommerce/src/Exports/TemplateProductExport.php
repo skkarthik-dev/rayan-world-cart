@@ -93,7 +93,7 @@ class TemplateProductExport implements FromCollection,
 
         $product = [
             'name'                             => $productName,
-            'description'                      => $descriptions->random(),
+            //'description'                      => $descriptions->random(),
             'slug'                             => '',
             'sku'                              => Str::upper(Str::random(7)),
             'auto_generate_sku'                => '',
