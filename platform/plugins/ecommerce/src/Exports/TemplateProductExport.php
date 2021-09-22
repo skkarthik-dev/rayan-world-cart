@@ -90,7 +90,7 @@ class TemplateProductExport implements FromCollection,
         $price = rand(20, 100);
 
         $attributeSets = $productAttributeSets->sortByDesc('order');
-dd('test1');
+
         $product = [
             'name'                             => $productName,
             'description'                      => $descriptions->random(),
@@ -121,7 +121,7 @@ dd('test1');
             'wide'                             => '',
             'height'                           => '',
         ];
-
+dd('test1');
         $attributes1 = [];
         foreach ($attributeSets as $set) {
             $attributes1[] = $set->title . ':' . $set->attributes->random()->title;
